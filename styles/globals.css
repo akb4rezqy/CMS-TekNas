@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer base {
+  :root {
+    /* Updated to use only light colors from the palette */
+    --background: 220 58% 95%; /* Very light version of Light 3 */
+    --foreground: 220 85% 27%; /* Primary for text */
+    --card: 220 58% 98%; /* Very light background for cards */
+    --card-foreground: 220 85% 27%; /* Primary text on cards */
+    --popover: 220 58% 98%;
+    --popover-foreground: 220 85% 27%;
+    --primary: 220 58% 41%; /* Light 1 #2E4FA1 as primary */
+    --primary-foreground: 220 58% 98%; /* Light text on primary */
+    --secondary: 220 58% 72%; /* Light 3 #8FA9E0 */
+    --secondary-foreground: 220 85% 27%;
+    --muted: 220 45% 55%; /* Light 2 #5570C1 */
+    --muted-foreground: 220 85% 27%; /* Primary for muted text */
+    --accent: 220 58% 72%; /* Light 3 #8FA9E0 for accent */
+    --accent-foreground: 220 85% 27%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 58% 85%; /* Light version of Light 3 for borders */
+    --input: 220 58% 90%; /* Very light for inputs */
+    --ring: 220 58% 41%; /* Light 1 for focus rings */
+    --chart-1: 220 58% 41%; /* Light 1 */
+    --chart-2: 220 45% 55%; /* Light 2 */
+    --chart-3: 220 58% 72%; /* Light 3 */
+    --chart-4: 220 85% 27%; /* Primary as accent */
+    --chart-5: 220 58% 85%; /* Light variant */
+    --radius: 0.5rem;
+    /* Updated sidebar colors to use light palette */
+    --sidebar-background: 220 58% 98%;
+    --sidebar-foreground: 220 85% 27%;
+    --sidebar-primary: 220 58% 41%;
+    --sidebar-primary-foreground: 220 58% 98%;
+    --sidebar-accent: 220 58% 72%;
+    --sidebar-accent-foreground: 220 85% 27%;
+    --sidebar-border: 220 58% 85%;
+    --sidebar-ring: 220 58% 41%;
+  }
+  .dark {
+    /* Updated dark mode to use lighter variants for better contrast */
+    --background: 220 58% 15%; /* Darker but still from light palette family */
+    --foreground: 220 58% 95%; /* Light text */
+    --card: 220 58% 20%; /* Slightly lighter for cards */
+    --card-foreground: 220 58% 95%;
+    --popover: 220 58% 20%;
+    --popover-foreground: 220 58% 95%;
+    --primary: 220 58% 72%; /* Light 3 for primary in dark mode */
+    --primary-foreground: 220 58% 15%;
+    --secondary: 220 58% 25%; /* Darker variant for secondary */
+    --secondary-foreground: 220 58% 95%;
+    --muted: 220 58% 25%; /* Darker variant for muted */
+    --muted-foreground: 220 45% 55%; /* Light 2 for muted text */
+    --accent: 220 58% 41%; /* Light 1 for accent */
+    --accent-foreground: 220 58% 95%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 58% 25%; /* Darker variant for borders */
+    --input: 220 58% 25%; /* Darker variant for inputs */
+    --ring: 220 58% 72%; /* Light 3 for focus rings */
+    --chart-1: 220 58% 72%; /* Light 3 */
+    --chart-2: 220 45% 55%; /* Light 2 */
+    --chart-3: 220 58% 41%; /* Light 1 */
+    --chart-4: 220 85% 27%; /* Primary */
+    --chart-5: 220 58% 30%; /* Darker variant */
+    /* Updated dark mode sidebar colors */
+    --sidebar-background: 220 58% 15%;
+    --sidebar-foreground: 220 58% 95%;
+    --sidebar-primary: 220 58% 72%;
+    --sidebar-primary-foreground: 220 58% 15%;
+    --sidebar-accent: 220 58% 25%;
+    --sidebar-accent-foreground: 220 58% 95%;
+    --sidebar-border: 220 58% 25%;
+    --sidebar-ring: 220 58% 72%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
