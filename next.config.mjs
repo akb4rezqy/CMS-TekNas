@@ -1,17 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Mengizinkan gambar dari semua domain (untuk sementara saat development)
+      },
+    ],
   },
-  experimental: { // Tambahkan bagian ini
-    globalNotFound: true,
-  },
-}
+  // Hapus blok 'eslint' dari sini jika ada
+};
 
-export default nextConfig
+export default nextConfig;
