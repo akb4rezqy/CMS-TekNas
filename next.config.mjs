@@ -6,6 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  allowedDevOrigins: ["*.janeway.replit.dev"],
   experimental: {
     globalNotFound: true,
   },
