@@ -249,11 +249,10 @@ export default function ExtracurricularsPage() {
             <Card key={extracurricular.id} className="overflow-hidden">
               <div className="relative h-48">
                 {extracurricular.images.length > 0 ? (
-                  <Image
+                  <img
                     src={extracurricular.images[0] || "/placeholder.svg"}
                     alt={extracurricular.title}
-                    fill
-                    className="object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-muted flex items-center justify-center">
@@ -335,12 +334,10 @@ export default function ExtracurricularsPage() {
                   <div className="grid grid-cols-2 gap-4">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative">
-                        <Image
+                        <img
                           src={image || "/placeholder.svg"}
                           alt={`Preview ${index + 1}`}
-                          width={200}
-                          height={150}
-                          className="object-cover rounded-lg"
+                          className="w-full h-[150px] object-cover rounded-lg"
                         />
                         <Button
                           type="button"

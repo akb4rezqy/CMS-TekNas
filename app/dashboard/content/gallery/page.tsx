@@ -257,11 +257,10 @@ export default function GalleryPage() {
               <div className="relative h-48">
                 {item.images.length > 0 ? (
                   <>
-                    <Image
+                    <img
                       src={item.images[0] || "/placeholder.svg"}
                       alt={item.title}
-                      fill
-                      className="object-cover transition-transform group-hover:scale-105"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-105"
                     />
                     {item.images.length > 1 && (
                       <div className="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
@@ -350,12 +349,10 @@ export default function GalleryPage() {
                   <div className="grid grid-cols-3 gap-2">
                     {formData.images.map((image, index) => (
                       <div key={index} className="relative">
-                        <Image
+                        <img
                           src={image || "/placeholder.svg"}
                           alt={`Preview ${index + 1}`}
-                          width={150}
-                          height={100}
-                          className="object-cover rounded-lg"
+                          className="w-full h-[100px] object-cover rounded-lg"
                         />
                         <Button
                           type="button"
@@ -397,11 +394,9 @@ export default function GalleryPage() {
               <div className="grid gap-4">
                 {previewItem.images.map((image, index) => (
                   <div key={index} className="relative">
-                    <Image
+                    <img
                       src={image || "/placeholder.svg"}
                       alt={`${previewItem.title} ${index + 1}`}
-                      width={800}
-                      height={400}
                       className="object-cover rounded-lg w-full"
                     />
                   </div>

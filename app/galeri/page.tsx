@@ -39,10 +39,8 @@ function ImageModal({
         </button>
 
         <div className="relative">
-          <Image
+          <img
             src={currentImage.src || "/placeholder.svg"}
-            width={800}
-            height={600}
             alt={currentImage.title}
             className="max-w-full max-h-[80vh] object-contain"
           />
@@ -175,10 +173,8 @@ function GaleriPage() {
               >
                 <CardContent className="p-0">
                   <div className="relative overflow-hidden">
-                    <Image
+                    <img
                       src={image.src || "/placeholder.svg"}
-                      width={400}
-                      height={300}
                       alt={image.title}
                       className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                     />

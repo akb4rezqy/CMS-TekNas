@@ -64,11 +64,10 @@ function EkstrakurikulerPage() {
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="aspect-[3/2] relative overflow-hidden">
-                <Image
+                <img
                   src={(activity.images && activity.images[0]) || "/placeholder.svg?height=200&width=300"}
-                  fill
                   alt={activity.title}
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
