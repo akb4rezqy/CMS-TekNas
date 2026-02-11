@@ -140,12 +140,31 @@ export default function ExtracurricularsPage() {
     }
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [uploading, setUploading] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
-    if (files) {
-      // Mock image upload - in real implementation, upload to storage
-      const newImages = Array.from(files).map((file) => URL.createObjectURL(file))
-      setFormData((prev) => ({ ...prev, images: [...prev.images, ...newImages] }))
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+    try {
+      const uploadData = new FormData()
+      Array.from(files).forEach((file) => uploadData.append("files", file))
+
+      const res = await fetch("/api/upload", { method: "POST", body: uploadData })
+      const result = await res.json()
+
+      if (result.success) {
+        setFormData((prev) => ({ ...prev, images: [...prev.images, ...result.urls] }))
+        toast({ title: "Foto berhasil diupload" })
+      } else {
+        toast({ title: "Gagal upload foto", description: result.error, variant: "destructive" })
+      }
+    } catch (err) {
+      toast({ title: "Gagal upload foto", description: "Terjadi kesalahan jaringan", variant: "destructive" })
+    } finally {
+      setUploading(false)
+      e.target.value = ""
     }
   }
 
@@ -304,7 +323,14 @@ export default function ExtracurricularsPage() {
                   multiple
                   onChange={handleImageUpload}
                   className="cursor-pointer"
+                  disabled={uploading}
                 />
+                {uploading && (
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Mengupload foto...
+                  </div>
+                )}
                 {formData.images.length > 0 && (
                   <div className="grid grid-cols-2 gap-4">
                     {formData.images.map((image, index) => (

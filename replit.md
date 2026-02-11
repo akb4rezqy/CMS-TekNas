@@ -4,6 +4,7 @@
 School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailwind CSS, and Supabase as the backend database.
 
 ## Recent Changes
+- 2026-02-11: Added image upload API (/api/upload) using Supabase Storage. Dashboard gallery/extracurriculars forms now upload images permanently. Fixed scroll animation hook for dynamic content. Added loading states to all public pages.
 - 2026-02-11: Connected all dashboard & public pages to Supabase. Created API routes for announcements, gallery, extracurriculars, staff-teachers. Removed old external API references and localStorage-based services.
 - 2026-02-09: Migrated from Vercel to Replit. Updated port binding to 5000 and host to 0.0.0.0. Removed deprecated eslint config from next.config.mjs. Fixed hydration errors.
 
@@ -20,6 +21,7 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `app/api/gallery/` - REST API for gallery CRUD
 - `app/api/extracurriculars/` - REST API for extracurriculars CRUD
 - `app/api/staff-teachers/` - REST API for staff & teachers CRUD
+- `app/api/upload/` - Image upload API (Supabase Storage)
 - `app/api/school/` - REST API for school data (classes, grades, schedules, subjects, users)
 - `app/dashboard/` - Admin dashboard
 - `components/` - Reusable UI components (shadcn/ui based)
