@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Loader2, X } from "lucide-react"
+import { Plus, Edit, Trash2, Loader2, X, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 
@@ -32,39 +32,30 @@ export default function ExtracurricularsPage() {
   const [submitting, setSubmitting] = useState(false)
   const { toast } = useToast()
 
-  // Mock data for now - will be replaced with Supabase
-  useEffect(() => {
-    const mockData: Extracurricular[] = [
-      {
-        id: "1",
-        title: "Pramuka",
-        description: "Kegiatan kepramukaan untuk membentuk karakter dan kepemimpinan siswa",
-        images: ["/placeholder.svg?height=200&width=300&text=Pramuka"],
-        created_at: "2024-12-01T10:00:00Z",
-        updated_at: "2024-12-01T10:00:00Z",
-      },
-      {
-        id: "2",
-        title: "Basket",
-        description: "Ekstrakurikuler olahraga basket untuk mengembangkan kemampuan fisik dan kerjasama tim",
-        images: ["/placeholder.svg?height=200&width=300&text=Basket"],
-        created_at: "2024-11-28T14:30:00Z",
-        updated_at: "2024-11-28T14:30:00Z",
-      },
-      {
-        id: "3",
-        title: "English Club",
-        description: "Klub bahasa Inggris untuk meningkatkan kemampuan berbahasa Inggris siswa",
-        images: ["/placeholder.svg?height=200&width=300&text=English+Club"],
-        created_at: "2024-11-25T09:15:00Z",
-        updated_at: "2024-11-25T09:15:00Z",
-      },
-    ]
+  const [error, setError] = useState<string | null>(null)
 
-    setTimeout(() => {
-      setExtracurriculars(mockData)
+  const fetchExtracurriculars = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/extracurriculars")
+      const result = await res.json()
+      if (result.success) {
+        setExtracurriculars(result.data)
+      } else {
+        setError(result.error || "Failed to load extracurriculars")
+        toast({ title: "Terjadi kesalahan", description: result.error || "Gagal memuat ekstrakurikuler", variant: "destructive" })
+      }
+    } catch (err) {
+      setError("Network error occurred")
+      toast({ title: "Terjadi kesalahan", description: "Gagal memuat ekstrakurikuler", variant: "destructive" })
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
+  }
+
+  useEffect(() => {
+    fetchExtracurriculars()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,28 +64,31 @@ export default function ExtracurricularsPage() {
 
     try {
       if (editingId) {
-        // Update existing extracurricular
-        const updatedExtracurricular = {
-          ...extracurriculars.find((e) => e.id === editingId)!,
-          title: formData.title,
-          description: formData.description,
-          images: formData.images,
-          updated_at: new Date().toISOString(),
+        const res = await fetch(`/api/extracurriculars/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchExtracurriculars()
+          toast({ title: "Ekstrakurikuler berhasil diperbarui" })
+        } else {
+          throw new Error(result.error || "Update failed")
         }
-        setExtracurriculars((prev) => prev.map((e) => (e.id === editingId ? updatedExtracurricular : e)))
-        toast({ title: "Ekstrakurikuler berhasil diperbarui" })
       } else {
-        // Create new extracurricular
-        const newExtracurricular: Extracurricular = {
-          id: Date.now().toString(),
-          title: formData.title,
-          description: formData.description,
-          images: formData.images,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+        const res = await fetch("/api/extracurriculars", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchExtracurriculars()
+          toast({ title: "Ekstrakurikuler berhasil ditambahkan" })
+        } else {
+          throw new Error(result.error || "Create failed")
         }
-        setExtracurriculars((prev) => [newExtracurricular, ...prev])
-        toast({ title: "Ekstrakurikuler berhasil ditambahkan" })
       }
 
       setFormData({ title: "", description: "", images: [] })
@@ -126,13 +120,19 @@ export default function ExtracurricularsPage() {
 
     setSubmitting(true)
     try {
-      setExtracurriculars((prev) => prev.filter((e) => e.id !== deleteId))
-      toast({ title: "Ekstrakurikuler berhasil dihapus" })
-      setDeleteId(null)
+      const res = await fetch(`/api/extracurriculars/${deleteId}`, { method: "DELETE" })
+      const result = await res.json()
+      if (result.success) {
+        await fetchExtracurriculars()
+        toast({ title: "Ekstrakurikuler berhasil dihapus" })
+        setDeleteId(null)
+      } else {
+        throw new Error(result.error || "Delete failed")
+      }
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
-        description: "Gagal menghapus ekstrakurikuler",
+        description: error instanceof Error ? error.message : "Gagal menghapus ekstrakurikuler",
         variant: "destructive",
       })
     } finally {
@@ -162,10 +162,44 @@ export default function ExtracurricularsPage() {
     setShowForm(false)
   }
 
+  if (error && !loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Ekstrakurikuler</h1>
+            <p className="text-muted-foreground">Kelola kegiatan ekstrakurikuler sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="font-semibold">Terjadi Kesalahan</h3>
+              <p className="text-muted-foreground">{error}</p>
+            </div>
+            <Button onClick={fetchExtracurriculars}>Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Ekstrakurikuler</h1>
+            <p className="text-muted-foreground">Kelola kegiatan ekstrakurikuler sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Memuat ekstrakurikuler...</span>
+          </CardContent>
+        </Card>
       </div>
     )
   }

@@ -1,51 +1,47 @@
 import { getServiceSupabase } from "@/lib/supabase/admin"
 
-export interface Announcement {
+export interface GalleryItem {
   id: string
   title: string
-  content: string
-  date: string
-  author: string
-  status: "draft" | "published"
+  description: string
+  images: string[]
   created_at: string
   updated_at: string
 }
 
-export class AnnouncementsService {
-  static async getAll(): Promise<{ data: Announcement[]; success: boolean; error?: string }> {
+export class GalleryService {
+  static async getAll(): Promise<{ data: GalleryItem[]; success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
       const { data, error } = await supabase
-        .from("announcements")
+        .from("gallery")
         .select("*")
         .order("created_at", { ascending: false })
 
       if (error) return { data: [], success: false, error: error.message }
-      return { data: data as Announcement[], success: true }
+      return { data: data as GalleryItem[], success: true }
     } catch (error) {
       return { data: [], success: false, error: error instanceof Error ? error.message : "Unknown error" }
     }
   }
 
   static async create(
-    input: Omit<Announcement, "id" | "created_at" | "updated_at">,
-  ): Promise<{ data?: Announcement; success: boolean; error?: string }> {
+    input: Omit<GalleryItem, "id" | "created_at" | "updated_at">,
+  ): Promise<{ data?: GalleryItem; success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
       const { data, error } = await supabase
-        .from("announcements")
+        .from("gallery")
         .insert({
           title: input.title,
-          content: input.content,
-          date: input.date,
-          author: input.author,
-          status: input.status,
+          description: input.description,
+          images: input.images,
         } as any)
         .select("*")
         .single()
 
       if (error) return { success: false, error: error.message }
-      return { data: data as Announcement, success: true }
+      return { data: data as GalleryItem, success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
     }
@@ -53,12 +49,12 @@ export class AnnouncementsService {
 
   static async update(
     id: string,
-    patch: Partial<Announcement>,
-  ): Promise<{ data?: Announcement; success: boolean; error?: string }> {
+    patch: Partial<GalleryItem>,
+  ): Promise<{ data?: GalleryItem; success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
       const { data, error } = await supabase
-        .from("announcements")
+        .from("gallery")
         .update({
           ...patch,
           updated_at: new Date().toISOString(),
@@ -68,7 +64,7 @@ export class AnnouncementsService {
         .single()
 
       if (error) return { success: false, error: error.message }
-      return { data: data as Announcement, success: true }
+      return { data: data as GalleryItem, success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
     }
@@ -77,7 +73,7 @@ export class AnnouncementsService {
   static async delete(id: string): Promise<{ success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
-      const { error } = await supabase.from("announcements").delete().eq("id", id)
+      const { error } = await supabase.from("gallery").delete().eq("id", id)
 
       if (error) return { success: false, error: error.message }
       return { success: true }

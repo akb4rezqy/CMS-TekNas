@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Loader2, GraduationCap } from "lucide-react"
+import { Plus, Edit, Trash2, Loader2, GraduationCap, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -29,63 +29,32 @@ export default function StaffTeachersPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: "", position: "", description: "" })
   const [submitting, setSubmitting] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
 
-  // Mock data for now - will be replaced with Supabase
-  useEffect(() => {
-    const mockData: StaffTeacher[] = [
-      {
-        id: "1",
-        name: "Bapak Budi Santoso, S.Pd.",
-        position: "Kepala Sekolah",
-        description:
-          "Memimpin sekolah dengan visi mencerdaskan bangsa dan membentuk karakter siswa yang berakhlak mulia.",
-        created_at: "2024-12-01T10:00:00Z",
-        updated_at: "2024-12-01T10:00:00Z",
-      },
-      {
-        id: "2",
-        name: "Ibu Sari Dewi, S.Pd.",
-        position: "Guru Matematika",
-        description: "Mengajar matematika dengan metode yang menyenangkan dan mudah dipahami siswa.",
-        created_at: "2024-11-28T14:30:00Z",
-        updated_at: "2024-11-28T14:30:00Z",
-      },
-      {
-        id: "3",
-        name: "Bapak Ahmad Rizki, S.Pd.",
-        position: "Guru Bahasa Indonesia",
-        description: "Mengembangkan kemampuan berbahasa Indonesia siswa melalui pembelajaran yang interaktif.",
-        created_at: "2024-11-25T09:15:00Z",
-        updated_at: "2024-11-25T09:15:00Z",
-      },
-      {
-        id: "4",
-        name: "Ibu Maya Sari, S.Pd.",
-        position: "Guru Bahasa Inggris",
-        description: "Membantu siswa menguasai bahasa Inggris untuk menghadapi tantangan global.",
-        created_at: "2024-11-20T16:45:00Z",
-        updated_at: "2024-11-20T16:45:00Z",
-      },
-      {
-        id: "5",
-        name: "Bapak Doni Pratama, S.Pd.",
-        position: "Guru Olahraga",
-        description: "Membina kesehatan jasmani siswa melalui berbagai kegiatan olahraga yang menyenangkan.",
-        created_at: "2024-11-15T11:20:00Z",
-        updated_at: "2024-11-15T11:20:00Z",
-      },
-      {
-        id: "6",
-        name: "Ibu Rina Wati, S.Pd.",
-        position: "Guru IPA",
-        description: "Mengajarkan ilmu pengetahuan alam dengan pendekatan eksperimen dan praktikum.",
-        created_at: "2024-11-10T13:30:00Z",
-        updated_at: "2024-11-10T13:30:00Z",
-      },
-    ]
+  const fetchStaffTeachers = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/staff-teachers")
+      const result = await res.json()
+      if (result.success) {
+        setStaffTeachers(result.data)
+      } else {
+        setError(result.error || "Failed to load staff teachers")
+        toast({ title: "Terjadi kesalahan", description: result.error || "Gagal memuat data staff", variant: "destructive" })
+      }
+    } catch (err) {
+      setError("Network error occurred")
+      toast({ title: "Terjadi kesalahan", description: "Gagal memuat data staff", variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
+  }
 
-    setStaffTeachers(mockData)
+  useEffect(() => {
+    fetchStaffTeachers()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,28 +63,31 @@ export default function StaffTeachersPage() {
 
     try {
       if (editingId) {
-        // Update existing staff
-        const updatedStaff = {
-          ...staffTeachers.find((staff) => staff.id === editingId)!,
-          name: formData.name,
-          position: formData.position,
-          description: formData.description,
-          updated_at: new Date().toISOString(),
+        const res = await fetch(`/api/staff-teachers/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchStaffTeachers()
+          toast({ title: "Data staff berhasil diperbarui" })
+        } else {
+          throw new Error(result.error || "Update failed")
         }
-        setStaffTeachers((prev) => prev.map((staff) => (staff.id === editingId ? updatedStaff : staff)))
-        toast({ title: "Data staff berhasil diperbarui" })
       } else {
-        // Create new staff
-        const newStaff: StaffTeacher = {
-          id: Date.now().toString(),
-          name: formData.name,
-          position: formData.position,
-          description: formData.description,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+        const res = await fetch("/api/staff-teachers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchStaffTeachers()
+          toast({ title: "Data staff berhasil ditambahkan" })
+        } else {
+          throw new Error(result.error || "Create failed")
         }
-        setStaffTeachers((prev) => [newStaff, ...prev])
-        toast({ title: "Data staff berhasil ditambahkan" })
       }
 
       setFormData({ name: "", position: "", description: "" })
@@ -147,13 +119,19 @@ export default function StaffTeachersPage() {
 
     setSubmitting(true)
     try {
-      setStaffTeachers((prev) => prev.filter((staff) => staff.id !== deleteId))
-      toast({ title: "Data staff berhasil dihapus" })
-      setDeleteId(null)
+      const res = await fetch(`/api/staff-teachers/${deleteId}`, { method: "DELETE" })
+      const result = await res.json()
+      if (result.success) {
+        await fetchStaffTeachers()
+        toast({ title: "Data staff berhasil dihapus" })
+        setDeleteId(null)
+      } else {
+        throw new Error(result.error || "Delete failed")
+      }
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
-        description: "Gagal menghapus data staff",
+        description: error instanceof Error ? error.message : "Gagal menghapus data staff",
         variant: "destructive",
       })
     } finally {
@@ -174,6 +152,48 @@ export default function StaffTeachersPage() {
       .join("")
       .toUpperCase()
       .slice(0, 2)
+  }
+
+  if (error && !loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Staff & Guru</h1>
+            <p className="text-muted-foreground">Kelola data staff dan guru sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="font-semibold">Terjadi Kesalahan</h3>
+              <p className="text-muted-foreground">{error}</p>
+            </div>
+            <Button onClick={fetchStaffTeachers}>Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Staff & Guru</h1>
+            <p className="text-muted-foreground">Kelola data staff dan guru sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Memuat data staff...</span>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

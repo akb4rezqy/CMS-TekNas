@@ -19,8 +19,17 @@ import {
 } from "@/components/ui/dialog"
 import { Plus, Edit, Trash2, Loader2, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { AnnouncementsService } from "@/lib/services/announcements-service"
-import type { Announcement } from "@/lib/data/dummy-data"
+
+interface Announcement {
+  id: string
+  title: string
+  content: string
+  date: string
+  author: string
+  status: "draft" | "published"
+  created_at: string
+  updated_at: string
+}
 
 export default function AnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([])
@@ -45,7 +54,8 @@ export default function AnnouncementsPage() {
     setError(null)
 
     try {
-      const result = await AnnouncementsService.getAll()
+      const res = await fetch("/api/announcements")
+      const result = await res.json()
 
       if (result.success) {
         setAnnouncements(result.data)
@@ -84,18 +94,28 @@ export default function AnnouncementsPage() {
       let result
 
       if (editingId) {
-        result = await AnnouncementsService.update(editingId, formData)
+        const res = await fetch(`/api/announcements/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        result = await res.json()
 
-        if (result.success && result.data) {
-          setAnnouncements((prev) => prev.map((a) => (a.id === editingId ? result.data! : a)))
+        if (result.success) {
+          await fetchAnnouncements()
           toast({ title: "Pengumuman berhasil diperbarui" })
         } else {
           throw new Error(result.error || "Update failed")
         }
       } else {
-        result = await AnnouncementsService.create(formData)
+        const res = await fetch("/api/announcements", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        result = await res.json()
 
-        if (result.success && result.data) {
+        if (result.success) {
           await fetchAnnouncements()
           toast({ title: "Pengumuman berhasil ditambahkan" })
         } else {
@@ -144,7 +164,8 @@ export default function AnnouncementsPage() {
     setSubmitting(true)
 
     try {
-      const result = await AnnouncementsService.delete(deleteId)
+      const res = await fetch(`/api/announcements/${deleteId}`, { method: "DELETE" })
+      const result = await res.json()
 
       if (result.success) {
         await fetchAnnouncements()

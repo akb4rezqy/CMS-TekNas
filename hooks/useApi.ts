@@ -2,24 +2,23 @@
 
 import { useState, useEffect } from "react"
 
-const BASE_URL = "https://a.akbarezqy.my.id/api"
-
 export const useAnnouncements = () => {
-  const [announcements, setAnnouncements] = useState([])
-  const [error, setError] = useState(null)
+  const [announcements, setAnnouncements] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/announcements`)
-        const data = await response.json()
-        if (data.success) {
-          setAnnouncements(data.data)
+        const response = await fetch("/api/announcements")
+        const result = await response.json()
+        if (result.success) {
+          const published = result.data.filter((a: any) => a.status === "published")
+          setAnnouncements(published)
         } else {
-          setError(data.message || "Failed to fetch announcements")
+          setError(result.error || "Failed to fetch announcements")
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch announcements")
+        setError(err.message || "Failed to fetch")
       }
     }
 
@@ -30,21 +29,21 @@ export const useAnnouncements = () => {
 }
 
 export const useGallery = () => {
-  const [gallery, setGallery] = useState([])
-  const [error, setError] = useState(null)
+  const [gallery, setGallery] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchGallery = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/gallery`)
-        const data = await response.json()
-        if (data.success) {
-          setGallery(data.data)
+        const response = await fetch("/api/gallery")
+        const result = await response.json()
+        if (result.success) {
+          setGallery(result.data)
         } else {
-          setError(data.message || "Failed to fetch gallery")
+          setError(result.error || "Failed to fetch gallery")
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch gallery")
+        setError(err.message || "Failed to fetch")
       }
     }
 
@@ -55,21 +54,21 @@ export const useGallery = () => {
 }
 
 export const useExtracurriculars = () => {
-  const [extracurriculars, setExtracurriculars] = useState([])
-  const [error, setError] = useState(null)
+  const [extracurriculars, setExtracurriculars] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchExtracurriculars = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/extracurriculars`)
-        const data = await response.json()
-        if (data.success) {
-          setExtracurriculars(data.data)
+        const response = await fetch("/api/extracurriculars")
+        const result = await response.json()
+        if (result.success) {
+          setExtracurriculars(result.data)
         } else {
-          setError(data.message || "Failed to fetch extracurriculars")
+          setError(result.error || "Failed to fetch extracurriculars")
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch extracurriculars")
+        setError(err.message || "Failed to fetch")
       }
     }
 
@@ -80,21 +79,21 @@ export const useExtracurriculars = () => {
 }
 
 export const useStaffTeachers = () => {
-  const [staffTeachers, setStaffTeachers] = useState([])
-  const [error, setError] = useState(null)
+  const [staffTeachers, setStaffTeachers] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchStaffTeachers = async () => {
       try {
-        const response = await fetch(`${BASE_URL}/staff-teachers`)
-        const data = await response.json()
-        if (data.success) {
-          setStaffTeachers(data.data)
+        const response = await fetch("/api/staff-teachers")
+        const result = await response.json()
+        if (result.success) {
+          setStaffTeachers(result.data)
         } else {
-          setError(data.message || "Failed to fetch staff & teachers")
+          setError(result.error || "Failed to fetch staff & teachers")
         }
       } catch (err: any) {
-        setError(err.message || "Failed to fetch staff & teachers")
+        setError(err.message || "Failed to fetch")
       }
     }
 

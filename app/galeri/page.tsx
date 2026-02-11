@@ -1,12 +1,13 @@
 "use client"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight, X } from "lucide-react"
+import { ChevronLeft, ChevronRight, X, Loader2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
-import { useState } from "react" // useState dan useEffect ditambahkan
-import { withLayout } from "@/components/hoc/with-layout" // Import HOC withLayout untuk menambahkan header dan footer
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import { useGallery } from "@/hooks/useApi"
 
-// Komponen Modal untuk menampilkan gambar dalam ukuran penuh
 function ImageModal({
   isOpen,
   onClose,
@@ -17,7 +18,7 @@ function ImageModal({
 }: {
   isOpen: boolean
   onClose: () => void
-  images: Array<{ id: number; src: string; title: string; description: string }>
+  images: Array<{ id: string; src: string; title: string; description: string }>
   currentIndex: number
   onPrevious: () => void
   onNext: () => void
@@ -84,60 +85,36 @@ function ImageModal({
 function GaleriPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const { gallery, error } = useGallery()
 
   const headerAnimation = useScrollAnimation(0.1)
   const galleryAnimation = useScrollAnimation(0.2)
 
-  const galleryImages = [
-    {
-      id: 1,
-      src: "/placeholder.svg?height=300&width=400&text=Upacara+Bendera",
-      title: "Upacara Bendera Hari Senin",
-      description: "Kegiatan rutin upacara bendera yang diikuti seluruh siswa dan guru",
-    },
-    {
-      id: 2,
-      src: "/placeholder.svg?height=300&width=400&text=Kelas+Matematika",
-      title: "Pembelajaran Matematika",
-      description: "Suasana pembelajaran matematika yang interaktif dan menyenangkan",
-    },
-    {
-      id: 3,
-      src: "/placeholder.svg?height=300&width=400&text=Ekstrakurikuler+Musik",
-      title: "Ekstrakurikuler Musik",
-      description: "Siswa berlatih musik dalam kegiatan ekstrakurikuler",
-    },
-    {
-      id: 4,
-      src: "/placeholder.svg?height=300&width=400&text=Perpustakaan",
-      title: "Perpustakaan Sekolah",
-      description: "Fasilitas perpustakaan yang nyaman untuk belajar dan membaca",
-    },
-    {
-      id: 5,
-      src: "/placeholder.svg?height=300&width=400&text=Lomba+Sains",
-      title: "Lomba Sains Antar Kelas",
-      description: "Kompetisi sains yang mengasah kemampuan siswa dalam bidang STEM",
-    },
-    {
-      id: 6,
-      src: "/placeholder.svg?height=300&width=400&text=Lab+Komputer",
-      title: "Laboratorium Komputer",
-      description: "Fasilitas laboratorium komputer dengan perangkat modern",
-    },
-    {
-      id: 7,
-      src: "/placeholder.svg?height=300&width=400&text=Olahraga",
-      title: "Kegiatan Olahraga",
-      description: "Siswa berpartisipasi dalam berbagai kegiatan olahraga",
-    },
-    {
-      id: 8,
-      src: "/placeholder.svg?height=300&width=400&text=Kelas+Seni",
-      title: "Pembelajaran Seni Rupa",
-      description: "Kreativitas siswa dalam pembelajaran seni rupa",
-    },
-  ]
+  const galleryImages = gallery.flatMap((item: any) =>
+    (item.images || []).map((img: string, idx: number) => ({
+      id: `${item.id}-${idx}`,
+      src: img || "/placeholder.svg?height=300&width=400",
+      title: item.title,
+      description: item.description || "",
+    }))
+  )
+
+  if (error) {
+    return (
+      <div className="py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6 text-center">
+          <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl mb-4">Galeri Sekolah</h1>
+          <Card className="max-w-2xl mx-auto">
+            <CardContent className="p-8 text-center">
+              <h2 className="text-2xl font-bold text-destructive mb-4">Terjadi Kesalahan</h2>
+              <p className="text-muted-foreground mb-6">{error}</p>
+              <Button onClick={() => window.location.reload()}>Coba Lagi</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
   const openModal = (index: number) => {
     setCurrentImageIndex(index)
@@ -159,7 +136,6 @@ function GaleriPage() {
   return (
     <div className="py-12 md:py-24 lg:py-32">
       <div className="container px-4 md:px-6">
-        {/* Header Section */}
         <div
           ref={headerAnimation.ref}
           className={`flex flex-col items-center justify-center space-y-4 text-center mb-12 transition-all duration-1000 ${
@@ -169,50 +145,49 @@ function GaleriPage() {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Galeri Sekolah</h1>
             <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
-              Dokumentasi kegiatan, pembelajaran, dan kehidupan sehari-hari di Sekolah Harapan Bangsa.
+              Dokumentasi kegiatan, pembelajaran, dan kehidupan sehari-hari di SMK Teknologi Nasional.
             </p>
           </div>
         </div>
 
-        {/* Gallery Grid */}
-        <div
-          ref={galleryAnimation.ref}
-          className={`grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 transition-all duration-1000 ${
-            galleryAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}
-        >
-          {galleryImages.map((image, index) => (
-            <Card
-              key={image.id}
-              className="overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
-              onClick={() => openModal(index)}
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <CardContent className="p-0">
-                <div className="relative overflow-hidden">
-                  <Image
-                    src={image.src || "/placeholder.svg"}
-                    width={400}
-                    height={300}
-                    alt={image.title}
-                    className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center">
-                    <div className="text-white text-center p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <h3 className="font-semibold text-sm mb-1">{image.title}</h3>
-                      <p className="text-xs opacity-90">{image.description}</p>
+        {galleryImages.length === 0 && !error ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin mr-2" />
+            <span>Memuat galeri...</span>
+          </div>
+        ) : (
+          <div
+            ref={galleryAnimation.ref}
+            className={`grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 transition-all duration-1000 ${
+              galleryAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            }`}
+          >
+            {galleryImages.map((image: any, index: number) => (
+              <Card
+                key={image.id}
+                className="overflow-hidden cursor-pointer group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 hover:scale-105"
+                onClick={() => openModal(index)}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <CardContent className="p-0">
+                  <div className="relative overflow-hidden">
+                    <Image
+                      src={image.src || "/placeholder.svg"}
+                      width={400}
+                      height={300}
+                      alt={image.title}
+                      className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end justify-center">
+                      <div className="text-white text-center p-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <h3 className="font-semibold text-sm mb-1">{image.title}</h3>
+                        <p className="text-xs opacity-90">{image.description}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Empty State */}
-        {galleryImages.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">Tidak ada gambar dalam kategori ini.</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
       </div>

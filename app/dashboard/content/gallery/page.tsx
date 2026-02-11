@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Loader2, X, Eye } from "lucide-react"
+import { Plus, Edit, Trash2, Loader2, X, Eye, AlertCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Image from "next/image"
 
@@ -34,57 +34,30 @@ export default function GalleryPage() {
   const [submitting, setSubmitting] = useState(false)
   const { toast } = useToast()
 
-  // Mock data for now - will be replaced with Supabase
-  useEffect(() => {
-    const mockData: GalleryItem[] = [
-      {
-        id: "1",
-        title: "Upacara Bendera",
-        description: "Kegiatan upacara bendera setiap hari Senin",
-        images: [
-          "/placeholder.svg?height=300&width=400&text=Upacara+1",
-          "/placeholder.svg?height=300&width=400&text=Upacara+2",
-        ],
-        created_at: "2024-12-01T10:00:00Z",
-        updated_at: "2024-12-01T10:00:00Z",
-      },
-      {
-        id: "2",
-        title: "Kegiatan Olahraga",
-        description: "Berbagai kegiatan olahraga siswa",
-        images: [
-          "/placeholder.svg?height=300&width=400&text=Olahraga+1",
-          "/placeholder.svg?height=300&width=400&text=Olahraga+2",
-          "/placeholder.svg?height=300&width=400&text=Olahraga+3",
-        ],
-        created_at: "2024-11-28T14:30:00Z",
-        updated_at: "2024-11-28T14:30:00Z",
-      },
-      {
-        id: "3",
-        title: "Kegiatan Pembelajaran",
-        description: "Suasana pembelajaran di kelas",
-        images: ["/placeholder.svg?height=300&width=400&text=Pembelajaran"],
-        created_at: "2024-11-25T09:15:00Z",
-        updated_at: "2024-11-25T09:15:00Z",
-      },
-      {
-        id: "4",
-        title: "Acara Sekolah",
-        description: "Berbagai acara dan perayaan sekolah",
-        images: [
-          "/placeholder.svg?height=300&width=400&text=Acara+1",
-          "/placeholder.svg?height=300&width=400&text=Acara+2",
-        ],
-        created_at: "2024-11-20T16:45:00Z",
-        updated_at: "2024-11-20T16:45:00Z",
-      },
-    ]
+  const [error, setError] = useState<string | null>(null)
 
-    setTimeout(() => {
-      setGalleryItems(mockData)
+  const fetchGalleryItems = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/gallery")
+      const result = await res.json()
+      if (result.success) {
+        setGalleryItems(result.data)
+      } else {
+        setError(result.error || "Failed to load gallery items")
+        toast({ title: "Terjadi kesalahan", description: result.error || "Gagal memuat galeri", variant: "destructive" })
+      }
+    } catch (err) {
+      setError("Network error occurred")
+      toast({ title: "Terjadi kesalahan", description: "Gagal memuat galeri", variant: "destructive" })
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
+  }
+
+  useEffect(() => {
+    fetchGalleryItems()
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,28 +66,31 @@ export default function GalleryPage() {
 
     try {
       if (editingId) {
-        // Update existing gallery item
-        const updatedItem = {
-          ...galleryItems.find((item) => item.id === editingId)!,
-          title: formData.title,
-          description: formData.description,
-          images: formData.images,
-          updated_at: new Date().toISOString(),
+        const res = await fetch(`/api/gallery/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchGalleryItems()
+          toast({ title: "Item galeri berhasil diperbarui" })
+        } else {
+          throw new Error(result.error || "Update failed")
         }
-        setGalleryItems((prev) => prev.map((item) => (item.id === editingId ? updatedItem : item)))
-        toast({ title: "Item galeri berhasil diperbarui" })
       } else {
-        // Create new gallery item
-        const newItem: GalleryItem = {
-          id: Date.now().toString(),
-          title: formData.title,
-          description: formData.description,
-          images: formData.images,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+        const res = await fetch("/api/gallery", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        })
+        const result = await res.json()
+        if (result.success) {
+          await fetchGalleryItems()
+          toast({ title: "Item galeri berhasil ditambahkan" })
+        } else {
+          throw new Error(result.error || "Create failed")
         }
-        setGalleryItems((prev) => [newItem, ...prev])
-        toast({ title: "Item galeri berhasil ditambahkan" })
       }
 
       setFormData({ title: "", description: "", images: [] })
@@ -146,13 +122,19 @@ export default function GalleryPage() {
 
     setSubmitting(true)
     try {
-      setGalleryItems((prev) => prev.filter((item) => item.id !== deleteId))
-      toast({ title: "Item galeri berhasil dihapus" })
-      setDeleteId(null)
+      const res = await fetch(`/api/gallery/${deleteId}`, { method: "DELETE" })
+      const result = await res.json()
+      if (result.success) {
+        await fetchGalleryItems()
+        toast({ title: "Item galeri berhasil dihapus" })
+        setDeleteId(null)
+      } else {
+        throw new Error(result.error || "Delete failed")
+      }
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
-        description: "Gagal menghapus item galeri",
+        description: error instanceof Error ? error.message : "Gagal menghapus item galeri",
         variant: "destructive",
       })
     } finally {
@@ -187,10 +169,44 @@ export default function GalleryPage() {
     setShowPreview(true)
   }
 
+  if (error && !loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Galeri</h1>
+            <p className="text-muted-foreground">Kelola foto dan dokumentasi kegiatan sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-8 space-y-4">
+            <AlertCircle className="h-12 w-12 text-destructive" />
+            <div className="text-center">
+              <h3 className="font-semibold">Terjadi Kesalahan</h3>
+              <p className="text-muted-foreground">{error}</p>
+            </div>
+            <Button onClick={fetchGalleryItems}>Coba Lagi</Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Galeri</h1>
+            <p className="text-muted-foreground">Kelola foto dan dokumentasi kegiatan sekolah</p>
+          </div>
+        </div>
+        <Card>
+          <CardContent className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Memuat galeri...</span>
+          </CardContent>
+        </Card>
       </div>
     )
   }
