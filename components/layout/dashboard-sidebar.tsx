@@ -3,17 +3,6 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarGroupContent,
-} from "@/components/ui/sidebar"
-import {
   BarChart3,
   FileText,
   Megaphone,
@@ -24,6 +13,7 @@ import {
   Settings,
   FileEdit,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const menuItems = [
   {
@@ -76,66 +66,69 @@ const menuItems = [
   },
 ]
 
-export function DashboardSidebar() {
+interface DashboardSidebarProps {
+  onNavigate?: () => void
+}
+
+export function DashboardSidebar({ onNavigate }: DashboardSidebarProps) {
   const pathname = usePathname()
 
-  console.log("[v0] Current pathname:", pathname)
-
   return (
-    <Sidebar className="w-[280px] border-r">
-      <SidebarHeader className="p-6">
-        <Link href="/dashboard" className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">SHB</span>
+    <div className="flex flex-col h-full">
+      <div className="p-6">
+        <Link href="/dashboard" className="flex items-center space-x-2" onClick={onNavigate}>
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">SMK</span>
           </div>
           <span className="font-bold text-lg">Admin Dashboard</span>
         </Link>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              {item.items ? (
-                <SidebarGroup>
-                  <SidebarGroupLabel className="flex items-center gap-2 px-2 py-2">
-                    <item.icon className="w-4 h-4" />
-                    {item.title}
-                  </SidebarGroupLabel>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {item.items.map((subItem) => (
-                        <SidebarMenuItem key={subItem.title}>
-                          <SidebarMenuButton asChild isActive={pathname === subItem.url}>
-                            <Link
-                              href={subItem.url}
-                              className="flex items-center gap-2"
-                              onClick={() => console.log("[v0] Navigating to:", subItem.url)}
-                            >
-                              <subItem.icon className="w-4 h-4" />
-                              {subItem.title}
-                            </Link>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              ) : (
-                <SidebarMenuButton asChild isActive={pathname === item.url}>
-                  <Link
-                    href={item.url}
-                    className="flex items-center gap-2"
-                    onClick={() => console.log("[v0] Navigating to:", item.url)}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    {item.title}
-                  </Link>
-                </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-    </Sidebar>
+      </div>
+      <nav className="flex-1 px-3 space-y-1 overflow-y-auto">
+        {menuItems.map((item) => (
+          <div key={item.title}>
+            {item.items ? (
+              <div className="mb-2">
+                <div className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <item.icon className="w-4 h-4" />
+                  {item.title}
+                </div>
+                <div className="space-y-0.5 ml-2">
+                  {item.items.map((subItem) => (
+                    <Link
+                      key={subItem.title}
+                      href={subItem.url}
+                      onClick={onNavigate}
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                        pathname === subItem.url
+                          ? "bg-primary text-primary-foreground font-medium"
+                          : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                      )}
+                    >
+                      <subItem.icon className="w-4 h-4" />
+                      {subItem.title}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <Link
+                href={item.url!}
+                onClick={onNavigate}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors",
+                  pathname === item.url
+                    ? "bg-primary text-primary-foreground font-medium"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                )}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.title}
+              </Link>
+            )}
+          </div>
+        ))}
+      </nav>
+    </div>
   )
 }
