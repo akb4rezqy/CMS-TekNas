@@ -1,12 +1,18 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 
 export function useScrollAnimation(threshold = 0.1) {
   const [isVisible, setIsVisible] = useState(false)
-  const ref = useRef<HTMLElement>(null)
+  const [element, setElement] = useState<HTMLElement | null>(null)
+
+  const ref = useCallback((node: HTMLElement | null) => {
+    setElement(node)
+  }, [])
 
   useEffect(() => {
+    if (!element) return
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -17,12 +23,10 @@ export function useScrollAnimation(threshold = 0.1) {
       { threshold },
     )
 
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
+    observer.observe(element)
 
     return () => observer.disconnect()
-  }, [threshold])
+  }, [element, threshold])
 
   return { ref, isVisible }
 }

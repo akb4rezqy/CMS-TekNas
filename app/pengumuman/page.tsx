@@ -5,15 +5,15 @@ import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAnnouncements } from "@/hooks/useApi"
-import { CalendarDays, ArrowRight } from "lucide-react"
+import { CalendarDays, ArrowRight, Loader2 } from "lucide-react"
 import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
 function PengumumanPage() {
-  const { announcements, error } = useAnnouncements()
+  const { announcements, loading, error } = useAnnouncements()
 
   const headerAnimation = useScrollAnimation(0.1)
-  const contentAnimation = useScrollAnimation(0.2)
+  const contentAnimation = useScrollAnimation(0.05)
 
   if (error) {
     return (
@@ -57,7 +57,12 @@ function PengumumanPage() {
           </div>
         </div>
 
-        {announcements.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin mr-2" />
+            <span>Memuat pengumuman...</span>
+          </div>
+        ) : announcements.length === 0 ? (
           <Card className="max-w-2xl mx-auto">
             <CardContent className="p-8 text-center">
               <h2 className="text-2xl font-bold mb-4">Belum Ada Pengumuman</h2>
@@ -72,7 +77,7 @@ function PengumumanPage() {
         ) : (
           <div
             ref={contentAnimation.ref}
-            className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 transition-all duration-1000 ${
+            className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 transition-all duration-700 ${
               contentAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
             }`}
           >
