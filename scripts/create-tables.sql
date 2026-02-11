@@ -58,3 +58,14 @@ CREATE POLICY "anon_read_extracurriculars" ON extracurriculars
 
 CREATE POLICY "anon_read_staff_teachers" ON staff_teachers
   FOR SELECT TO anon USING (true);
+
+-- Tabel Pengaturan Halaman
+CREATE TABLE IF NOT EXISTS page_settings (
+  id TEXT PRIMARY KEY DEFAULT 'main',
+  settings JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE page_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anon_read_page_settings" ON page_settings
+  FOR SELECT TO anon USING (true);

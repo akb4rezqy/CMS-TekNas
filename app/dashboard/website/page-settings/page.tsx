@@ -11,91 +11,99 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 
 interface PageSettings {
-  // Hero Section
   heroTitle: string
   heroSubtitle: string
   heroPrimaryButtonText: string
   heroSecondaryButtonText: string
-
-  // Principal Section
   principalName: string
   principalTitle: string
   principalWelcomeText: string
   principalMessage1: string
   principalMessage2: string
-
-  // School Profile
   schoolVision: string
   schoolMissions: string[]
-
-  // CTA Section
   ctaTitle: string
   ctaSubtitle: string
   ctaButtonText: string
-
-  // Meta
   siteTitle: string
   siteDescription: string
 }
 
+const DEFAULT_SETTINGS: PageSettings = {
+  heroTitle: "Masa Depan Teknologi Dimulai di SMK TEKNOLOGI NASIONAL",
+  heroSubtitle:
+    "Kami berkomitmen untuk membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan lingkungan belajar yang inspiratif.",
+  heroPrimaryButtonText: "Daftar Sekarang",
+  heroSecondaryButtonText: "Jelajahi Program",
+  principalName: "Bapak Budi Santoso, S.Pd.",
+  principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
+  principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
+  principalMessage1:
+    "Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi SMK TEKNOLOGI NASIONAL. Kami berkomitmen untuk menyediakan lingkungan belajar teknologi yang inspiratif dan kondusif, di mana setiap siswa dapat mengembangkan potensi teknis, inovasi, dan keterampilan industri 4.0.",
+  principalMessage2:
+    "Kami percaya bahwa pendidikan teknologi adalah kunci masa depan Indonesia. Oleh karena itu, kami terus berinovasi dalam kurikulum vokasi, fasilitas laboratorium, dan metode pembelajaran praktis untuk mempersiapkan generasi teknisi yang kompeten, berkarakter, dan siap menghadapi tantangan industri global.",
+  schoolVision:
+    "Menjadi sekolah menengah kejuruan teknologi terdepan yang menghasilkan lulusan kompeten, inovatif, berkarakter mulia, dan siap bersaing di era industri 4.0.",
+  schoolMissions: [
+    "Menyelenggarakan pendidikan vokasi teknologi berkualitas yang berorientasi pada industri.",
+    "Membentuk karakter siswa yang religius, mandiri, dan berjiwa technopreneurship.",
+    "Mengembangkan kompetensi teknis dan soft skills siswa secara optimal.",
+    "Menciptakan lingkungan belajar yang aman, nyaman, dan berbasis teknologi terkini.",
+    "Membangun kemitraan strategis dengan industri, orang tua, dan masyarakat.",
+  ],
+  ctaTitle: "Siap Bergabung dengan Keluarga SMK TEKNOLOGI NASIONAL?",
+  ctaSubtitle:
+    "Daftarkan putra-putri Anda sekarang dan berikan mereka pendidikan teknologi vokasi terbaik untuk masa depan yang cerah.",
+  ctaButtonText: "Daftar Sekarang",
+  siteTitle: "SMK TEKNOLOGI NASIONAL",
+  siteDescription: "Sekolah menengah kejuruan teknologi terdepan yang menghasilkan generasi unggul untuk industri 4.0",
+}
+
 export default function PageSettingsPage() {
-  const [settings, setSettings] = useState<PageSettings>({
-    // Hero Section
-    heroTitle: "Masa Depan Cerah Dimulai di Sekolah Harapan Bangsa",
-    heroSubtitle:
-      "Kami berkomitmen untuk membentuk generasi unggul melalui pendidikan holistik dan lingkungan belajar yang inspiratif.",
-    heroPrimaryButtonText: "Daftar Sekarang",
-    heroSecondaryButtonText: "Jelajahi Program",
-
-    // Principal Section
-    principalName: "Bapak Budi Santoso, S.Pd.",
-    principalTitle: "Kepala Sekolah Harapan Bangsa",
-    principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
-    principalMessage1:
-      "Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi Sekolah Harapan Bangsa. Kami berkomitmen untuk menyediakan lingkungan belajar yang inspiratif dan kondusif, di mana setiap siswa dapat mengembangkan potensi akademik, karakter, dan keterampilan hidup.",
-    principalMessage2:
-      "Kami percaya bahwa pendidikan adalah kunci masa depan. Oleh karena itu, kami terus berinovasi dalam kurikulum, fasilitas, dan metode pengajaran untuk mempersiapkan generasi muda yang cerdas, berakhlak mulia, dan siap menghadapi tantangan global.",
-
-    // School Profile
-    schoolVision:
-      "Menjadi institusi pendidikan terdepan yang menghasilkan generasi unggul, berkarakter mulia, berwawasan global, dan berdaya saing tinggi.",
-    schoolMissions: [
-      "Menyelenggarakan pendidikan berkualitas yang berpusat pada siswa.",
-      "Membentuk karakter siswa yang religius, mandiri, dan bertanggung jawab.",
-      "Mengembangkan potensi akademik dan non-akademik siswa secara optimal.",
-      "Menciptakan lingkungan belajar yang aman, nyaman, dan inovatif.",
-      "Membangun kemitraan yang kuat dengan orang tua dan masyarakat.",
-    ],
-
-    // CTA Section
-    ctaTitle: "Siap Bergabung dengan Keluarga Sekolah Harapan Bangsa?",
-    ctaSubtitle: "Daftarkan putra-putri Anda sekarang dan berikan mereka pendidikan terbaik untuk masa depan cerah.",
-    ctaButtonText: "Daftar Sekarang",
-
-    // Meta
-    siteTitle: "Sekolah Harapan Bangsa",
-    siteDescription: "Sekolah terdepan yang menghasilkan generasi unggul dan berkarakter mulia",
-  })
-
+  const [settings, setSettings] = useState<PageSettings>(DEFAULT_SETTINGS)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [tableExists, setTableExists] = useState(true)
   const { toast } = useToast()
 
-  // Load settings on component mount
   useEffect(() => {
-    // Mock loading - in real implementation, load from database
-    setTimeout(() => {
-      setLoading(false)
-    }, 1000)
+    const loadSettings = async () => {
+      try {
+        const res = await fetch("/api/page-settings")
+        const result = await res.json()
+        if (result.success && result.data) {
+          setSettings({ ...DEFAULT_SETTINGS, ...result.data })
+        }
+        if (result.tableExists === false) {
+          setTableExists(false)
+        }
+      } catch {
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadSettings()
   }, [])
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      // Mock save - in real implementation, save to database
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      toast({ title: "Pengaturan berhasil disimpan" })
-    } catch (error) {
+      const res = await fetch("/api/page-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      })
+      const result = await res.json()
+      if (result.success) {
+        toast({ title: "Pengaturan berhasil disimpan" })
+      } else {
+        toast({
+          title: "Terjadi kesalahan",
+          description: result.error || "Gagal menyimpan pengaturan",
+          variant: "destructive",
+        })
+      }
+    } catch {
       toast({
         title: "Terjadi kesalahan",
         description: "Gagal menyimpan pengaturan",
@@ -136,7 +144,7 @@ export default function PageSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">Pengaturan Halaman</h1>
           <p className="text-muted-foreground">Kelola konten halaman utama website</p>
@@ -155,8 +163,20 @@ export default function PageSettingsPage() {
         </div>
       </div>
 
+      {!tableExists && (
+        <Card className="border-orange-300 bg-orange-50">
+          <CardContent className="p-4">
+            <p className="text-sm text-orange-800 font-medium">
+              Tabel pengaturan halaman belum dibuat di database. Konten di bawah ini adalah default dan belum bisa disimpan.
+            </p>
+            <p className="text-xs text-orange-600 mt-1">
+              Jalankan SQL dari file <code className="bg-orange-100 px-1 rounded">scripts/create-tables.sql</code> di Supabase SQL Editor untuk mengaktifkan fitur simpan.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-6">
-        {/* Meta Settings */}
         <Card>
           <CardHeader>
             <CardTitle>Pengaturan Umum</CardTitle>
@@ -169,7 +189,6 @@ export default function PageSettingsPage() {
                   id="siteTitle"
                   value={settings.siteTitle}
                   onChange={(e) => setSettings((prev) => ({ ...prev, siteTitle: e.target.value }))}
-                  placeholder="Masukkan judul website"
                 />
               </div>
               <div className="space-y-2">
@@ -178,14 +197,12 @@ export default function PageSettingsPage() {
                   id="siteDescription"
                   value={settings.siteDescription}
                   onChange={(e) => setSettings((prev) => ({ ...prev, siteDescription: e.target.value }))}
-                  placeholder="Masukkan deskripsi website"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Hero Section */}
         <Card>
           <CardHeader>
             <CardTitle>Hero Section</CardTitle>
@@ -197,7 +214,6 @@ export default function PageSettingsPage() {
                 id="heroTitle"
                 value={settings.heroTitle}
                 onChange={(e) => setSettings((prev) => ({ ...prev, heroTitle: e.target.value }))}
-                placeholder="Masukkan judul utama hero section"
                 rows={2}
               />
             </div>
@@ -207,7 +223,6 @@ export default function PageSettingsPage() {
                 id="heroSubtitle"
                 value={settings.heroSubtitle}
                 onChange={(e) => setSettings((prev) => ({ ...prev, heroSubtitle: e.target.value }))}
-                placeholder="Masukkan subjudul hero section"
                 rows={3}
               />
             </div>
@@ -218,7 +233,6 @@ export default function PageSettingsPage() {
                   id="heroPrimaryButton"
                   value={settings.heroPrimaryButtonText}
                   onChange={(e) => setSettings((prev) => ({ ...prev, heroPrimaryButtonText: e.target.value }))}
-                  placeholder="Teks tombol utama"
                 />
               </div>
               <div className="space-y-2">
@@ -227,14 +241,12 @@ export default function PageSettingsPage() {
                   id="heroSecondaryButton"
                   value={settings.heroSecondaryButtonText}
                   onChange={(e) => setSettings((prev) => ({ ...prev, heroSecondaryButtonText: e.target.value }))}
-                  placeholder="Teks tombol kedua"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Principal Section */}
         <Card>
           <CardHeader>
             <CardTitle>Sambutan Kepala Sekolah</CardTitle>
@@ -247,7 +259,6 @@ export default function PageSettingsPage() {
                   id="principalName"
                   value={settings.principalName}
                   onChange={(e) => setSettings((prev) => ({ ...prev, principalName: e.target.value }))}
-                  placeholder="Nama lengkap kepala sekolah"
                 />
               </div>
               <div className="space-y-2">
@@ -256,7 +267,6 @@ export default function PageSettingsPage() {
                   id="principalTitle"
                   value={settings.principalTitle}
                   onChange={(e) => setSettings((prev) => ({ ...prev, principalTitle: e.target.value }))}
-                  placeholder="Jabatan kepala sekolah"
                 />
               </div>
             </div>
@@ -266,7 +276,6 @@ export default function PageSettingsPage() {
                 id="principalWelcome"
                 value={settings.principalWelcomeText}
                 onChange={(e) => setSettings((prev) => ({ ...prev, principalWelcomeText: e.target.value }))}
-                placeholder="Salam pembuka"
               />
             </div>
             <div className="space-y-2">
@@ -275,7 +284,6 @@ export default function PageSettingsPage() {
                 id="principalMessage1"
                 value={settings.principalMessage1}
                 onChange={(e) => setSettings((prev) => ({ ...prev, principalMessage1: e.target.value }))}
-                placeholder="Pesan pertama kepala sekolah"
                 rows={4}
               />
             </div>
@@ -285,14 +293,12 @@ export default function PageSettingsPage() {
                 id="principalMessage2"
                 value={settings.principalMessage2}
                 onChange={(e) => setSettings((prev) => ({ ...prev, principalMessage2: e.target.value }))}
-                placeholder="Pesan kedua kepala sekolah"
                 rows={4}
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* School Profile */}
         <Card>
           <CardHeader>
             <CardTitle>Profil Sekolah</CardTitle>
@@ -304,7 +310,6 @@ export default function PageSettingsPage() {
                 id="schoolVision"
                 value={settings.schoolVision}
                 onChange={(e) => setSettings((prev) => ({ ...prev, schoolVision: e.target.value }))}
-                placeholder="Masukkan visi sekolah"
                 rows={3}
               />
             </div>
@@ -344,7 +349,6 @@ export default function PageSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* CTA Section */}
         <Card>
           <CardHeader>
             <CardTitle>Call to Action</CardTitle>
@@ -356,7 +360,6 @@ export default function PageSettingsPage() {
                 id="ctaTitle"
                 value={settings.ctaTitle}
                 onChange={(e) => setSettings((prev) => ({ ...prev, ctaTitle: e.target.value }))}
-                placeholder="Masukkan judul call to action"
                 rows={2}
               />
             </div>
@@ -366,7 +369,6 @@ export default function PageSettingsPage() {
                 id="ctaSubtitle"
                 value={settings.ctaSubtitle}
                 onChange={(e) => setSettings((prev) => ({ ...prev, ctaSubtitle: e.target.value }))}
-                placeholder="Masukkan subjudul call to action"
                 rows={2}
               />
             </div>
@@ -376,14 +378,12 @@ export default function PageSettingsPage() {
                 id="ctaButton"
                 value={settings.ctaButtonText}
                 onChange={(e) => setSettings((prev) => ({ ...prev, ctaButtonText: e.target.value }))}
-                placeholder="Teks tombol call to action"
               />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Save Button (Sticky) */}
       <div className="sticky bottom-6 flex justify-end">
         <Button onClick={handleSave} disabled={saving} size="lg" className="shadow-lg">
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}

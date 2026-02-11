@@ -1,27 +1,88 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
+interface PageSettings {
+  heroTitle: string
+  heroSubtitle: string
+  heroPrimaryButtonText: string
+  heroSecondaryButtonText: string
+  principalName: string
+  principalTitle: string
+  principalWelcomeText: string
+  principalMessage1: string
+  principalMessage2: string
+  schoolVision: string
+  schoolMissions: string[]
+  ctaTitle: string
+  ctaSubtitle: string
+  ctaButtonText: string
+  siteTitle: string
+  siteDescription: string
+}
+
+const DEFAULTS: PageSettings = {
+  heroTitle: "Masa Depan Teknologi Dimulai di SMK TEKNOLOGI NASIONAL",
+  heroSubtitle:
+    "Kami berkomitmen untuk membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan lingkungan belajar yang inspiratif.",
+  heroPrimaryButtonText: "Daftar Sekarang",
+  heroSecondaryButtonText: "Jelajahi Program",
+  principalName: "Bapak Budi Santoso, S.Pd.",
+  principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
+  principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
+  principalMessage1:
+    "Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi SMK TEKNOLOGI NASIONAL. Kami berkomitmen untuk menyediakan lingkungan belajar teknologi yang inspiratif dan kondusif, di mana setiap siswa dapat mengembangkan potensi teknis, inovasi, dan keterampilan industri 4.0.",
+  principalMessage2:
+    "Kami percaya bahwa pendidikan teknologi adalah kunci masa depan Indonesia. Oleh karena itu, kami terus berinovasi dalam kurikulum vokasi, fasilitas laboratorium, dan metode pembelajaran praktis untuk mempersiapkan generasi teknisi yang kompeten, berkarakter, dan siap menghadapi tantangan industri global.",
+  schoolVision:
+    "Menjadi sekolah menengah kejuruan teknologi terdepan yang menghasilkan lulusan kompeten, inovatif, berkarakter mulia, dan siap bersaing di era industri 4.0.",
+  schoolMissions: [
+    "Menyelenggarakan pendidikan vokasi teknologi berkualitas yang berorientasi pada industri.",
+    "Membentuk karakter siswa yang religius, mandiri, dan berjiwa technopreneurship.",
+    "Mengembangkan kompetensi teknis dan soft skills siswa secara optimal.",
+    "Menciptakan lingkungan belajar yang aman, nyaman, dan berbasis teknologi terkini.",
+    "Membangun kemitraan strategis dengan industri, orang tua, dan masyarakat.",
+  ],
+  ctaTitle: "Siap Bergabung dengan Keluarga SMK TEKNOLOGI NASIONAL?",
+  ctaSubtitle:
+    "Daftarkan putra-putri Anda sekarang dan berikan mereka pendidikan teknologi vokasi terbaik untuk masa depan yang cerah.",
+  ctaButtonText: "Daftar Sekarang",
+  siteTitle: "SMK TEKNOLOGI NASIONAL",
+  siteDescription: "Sekolah menengah kejuruan teknologi terdepan yang menghasilkan generasi unggul untuk industri 4.0",
+}
+
 function HomePage() {
+  const [s, setS] = useState<PageSettings>(DEFAULTS)
+
   const heroAnimation = useScrollAnimation(0.1)
   const sambutanAnimation = useScrollAnimation(0.2)
   const profilAnimation = useScrollAnimation(0.2)
   const ctaAnimation = useScrollAnimation(0.2)
 
+  useEffect(() => {
+    fetch("/api/page-settings")
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.success && result.data) {
+          setS({ ...DEFAULTS, ...result.data })
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <>
-      {/* Hero Section */}
       <section
         ref={heroAnimation.ref}
         className={`relative w-full h-screen flex items-center justify-center transition-all duration-1000 ${
           heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
-        {/* Background Image */}
         <Image
           src="/placeholder.svg?height=1080&width=1920&text=Students+Learning"
           fill
@@ -29,39 +90,33 @@ function HomePage() {
           className="object-cover"
           priority
         />
-
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-
-        {/* Content */}
         <div className="relative z-10 container px-4 md:px-6 text-center text-white">
           <div className="max-w-4xl mx-auto space-y-6">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-6xl xl:text-7xl animate-fade-in-up">
-              Masa Depan Teknologi Dimulai di SMK TEKNOLOGI NASIONAL
+              {s.heroTitle}
             </h1>
             <p className="max-w-[800px] text-xl md:text-2xl mx-auto text-gray-200 animate-fade-in-up animation-delay-200">
-              Kami berkomitmen untuk membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan
-              lingkungan belajar yang inspiratif.
+              {s.heroSubtitle}
             </p>
             <div className="flex flex-col gap-4 min-[400px]:flex-row justify-center mt-8 animate-fade-in-up animation-delay-400">
               <Link
                 href="#cta"
                 className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg transition-all duration-300 hover:bg-primary/90 hover:scale-105 hover:shadow-xl active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               >
-                Daftar Sekarang
+                {s.heroPrimaryButtonText}
               </Link>
               <Link
                 href="#profil-sekolah"
                 className="inline-flex h-12 items-center justify-center rounded-md border-2 border-white bg-transparent px-10 text-lg font-medium text-white shadow-lg transition-all duration-300 hover:bg-white hover:text-foreground hover:scale-105 hover:shadow-xl active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
               >
-                Jelajahi Program
+                {s.heroSecondaryButtonText}
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Sambutan Kepala Sekolah Section */}
       <section
         ref={sambutanAnimation.ref}
         id="sambutan-kepala-sekolah"
@@ -89,26 +144,16 @@ function HomePage() {
               />
             </div>
             <div className="text-center md:text-left space-y-4">
-              <p className="text-lg leading-relaxed text-white">Assalamu'alaikum Warahmatullahi Wabarakatuh.</p>
-              <p className="leading-relaxed text-white">
-                Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi SMK TEKNOLOGI NASIONAL. Kami
-                berkomitmen untuk menyediakan lingkungan belajar teknologi yang inspiratif dan kondusif, di mana setiap
-                siswa dapat mengembangkan potensi teknis, inovasi, dan keterampilan industri 4.0.
-              </p>
-              <p className="leading-relaxed text-white">
-                Kami percaya bahwa pendidikan teknologi adalah kunci masa depan Indonesia. Oleh karena itu, kami terus
-                berinovasi dalam kurikulum vokasi, fasilitas laboratorium, dan metode pembelajaran praktis untuk
-                mempersiapkan generasi teknisi yang kompeten, berkarakter, dan siap menghadapi tantangan industri
-                global.
-              </p>
-              <p className="text-lg font-semibold text-white">Bapak Budi Santoso, S.Pd.</p>
-              <p className="text-white tabular-nums text-sm font-light">Kepala SMK TEKNOLOGI NASIONAL</p>
+              <p className="text-lg leading-relaxed text-white">{s.principalWelcomeText}</p>
+              <p className="leading-relaxed text-white">{s.principalMessage1}</p>
+              <p className="leading-relaxed text-white">{s.principalMessage2}</p>
+              <p className="text-lg font-semibold text-white">{s.principalName}</p>
+              <p className="text-white tabular-nums text-sm font-light">{s.principalTitle}</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Profil Sekolah (Visi & Misi) Section */}
       <section
         ref={profilAnimation.ref}
         id="profil-sekolah"
@@ -131,10 +176,7 @@ function HomePage() {
                 <CardTitle className="text-2xl font-bold">Visi</CardTitle>
               </CardHeader>
               <CardContent className="p-0 text-muted-foreground">
-                <p>
-                  Menjadi sekolah menengah kejuruan teknologi terdepan yang menghasilkan lulusan kompeten, inovatif,
-                  berkarakter mulia, dan siap bersaing di era industri 4.0.
-                </p>
+                <p>{s.schoolVision}</p>
               </CardContent>
             </Card>
             <Card className="flex flex-col p-6">
@@ -143,11 +185,9 @@ function HomePage() {
               </CardHeader>
               <CardContent className="p-0 text-muted-foreground">
                 <ul className="list-disc list-inside space-y-2">
-                  <li>Menyelenggarakan pendidikan vokasi teknologi berkualitas yang berorientasi pada industri.</li>
-                  <li>Membentuk karakter siswa yang religius, mandiri, dan berjiwa technopreneurship.</li>
-                  <li>Mengembangkan kompetensi teknis dan soft skills siswa secara optimal.</li>
-                  <li>Menciptakan lingkungan belajar yang aman, nyaman, dan berbasis teknologi terkini.</li>
-                  <li>Membangun kemitraan strategis dengan industri, orang tua, dan masyarakat.</li>
+                  {s.schoolMissions.map((mission, idx) => (
+                    <li key={idx}>{mission}</li>
+                  ))}
                 </ul>
               </CardContent>
             </Card>
@@ -155,7 +195,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Final Call-to-Action Section */}
       <section
         ref={ctaAnimation.ref}
         id="cta"
@@ -165,20 +204,15 @@ function HomePage() {
       >
         <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
           <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
-              Siap Bergabung dengan Keluarga SMK TEKNOLOGI NASIONAL?
-            </h2>
-            <p className="mx-auto max-w-[600px] md:text-xl lg:text-base xl:text-xl">
-              Daftarkan putra-putri Anda sekarang dan berikan mereka pendidikan teknologi vokasi terbaik untuk masa
-              depan yang cerah.
-            </p>
+            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">{s.ctaTitle}</h2>
+            <p className="mx-auto max-w-[600px] md:text-xl lg:text-base xl:text-xl">{s.ctaSubtitle}</p>
           </div>
           <div className="flex justify-center">
             <Link
               href="#"
               className="inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium text-secondary-foreground shadow transition-all duration-300 hover:bg-secondary/90 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-blue-100"
             >
-              Daftar Sekarang
+              {s.ctaButtonText}
             </Link>
           </div>
         </div>
