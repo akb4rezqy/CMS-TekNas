@@ -12,7 +12,7 @@ const nextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ["*.janeway.replit.dev"],
+  allowedDevOrigins: ["*.janeway.replit.dev", "*.replit.dev", "*.repl.co"],
   experimental: {},
 }
 
