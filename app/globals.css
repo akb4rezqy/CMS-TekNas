@@ -114,12 +114,57 @@
     animation-delay: 800ms;
   }
 
-  /* Smooth scroll behavior */
+  .animate-float-up {
+    animation: floatUp 8s ease-in infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulseSlow 6s ease-in-out infinite;
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseSlow {
+  0%, 100% {
+    opacity: 0.08;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@layer utilities {
   .smooth-scroll {
     scroll-behavior: smooth;
   }
 
-  /* Custom hover effects */
   .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
@@ -129,7 +174,6 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
   }
 
-  /* Gradient text effect */
   .gradient-text {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
@@ -137,20 +181,19 @@
     background-clip: text;
   }
 
-  /* Shimmer effect for loading states */
   .shimmer {
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
   }
+}
 
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
   }
 }
 
