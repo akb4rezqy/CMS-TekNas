@@ -11,9 +11,20 @@ import { withLayout } from "@/components/hoc/with-layout"
 function AnnouncementDetailPage() {
   const { id } = useParams()
   const router = useRouter()
-  const { announcements, error } = useAnnouncements()
+  const { announcements, loading, error } = useAnnouncements()
 
-  const announcement = announcements.find((a) => a.id === Number(id))
+  const announcement = announcements.find((a) => String(a.id) === String(id))
+
+  if (loading) {
+    return (
+      <div className="py-12 md:py-24 lg:py-32">
+        <div className="container px-4 md:px-6 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mr-3" />
+          <span>Memuat pengumuman...</span>
+        </div>
+      </div>
+    )
+  }
 
   if (error) {
     return (
