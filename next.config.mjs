@@ -13,9 +13,7 @@ const nextConfig = {
     ],
   },
   allowedDevOrigins: ["*.janeway.replit.dev"],
-  experimental: {
-    globalNotFound: true,
-  },
+  experimental: {},
 }
 
 export default nextConfig
