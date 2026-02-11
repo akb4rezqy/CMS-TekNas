@@ -85,7 +85,7 @@ function ImageModal({
 function GaleriPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const { gallery, error } = useGallery()
+  const { gallery, loading, error } = useGallery()
 
   const headerAnimation = useScrollAnimation(0.1)
   const galleryAnimation = useScrollAnimation(0.2)
@@ -150,10 +150,14 @@ function GaleriPage() {
           </div>
         </div>
 
-        {galleryImages.length === 0 && !error ? (
+        {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin mr-2" />
             <span>Memuat galeri...</span>
+          </div>
+        ) : galleryImages.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Belum ada foto dalam galeri.</p>
           </div>
         ) : (
           <div

@@ -10,7 +10,7 @@ import { useExtracurriculars } from "@/hooks/useApi"
 function EkstrakurikulerPage() {
   const headerAnimation = useScrollAnimation(0.1)
   const contentAnimation = useScrollAnimation(0.2)
-  const { extracurriculars, error } = useExtracurriculars()
+  const { extracurriculars, loading, error } = useExtracurriculars()
 
   if (error) {
     return (
@@ -41,10 +41,14 @@ function EkstrakurikulerPage() {
         </p>
       </div>
 
-      {extracurriculars.length === 0 && !error ? (
+      {loading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin mr-2" />
           <span>Memuat data...</span>
+        </div>
+      ) : extracurriculars.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Belum ada program ekstrakurikuler yang tersedia.</p>
         </div>
       ) : (
         <div

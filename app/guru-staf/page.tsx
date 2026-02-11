@@ -10,7 +10,7 @@ import { useStaffTeachers } from "@/hooks/useApi"
 function GuruStafPage() {
   const headerAnimation = useScrollAnimation(0.1)
   const contentAnimation = useScrollAnimation(0.2)
-  const { staffTeachers, error } = useStaffTeachers()
+  const { staffTeachers, loading, error } = useStaffTeachers()
 
   if (error) {
     return (
@@ -46,10 +46,14 @@ function GuruStafPage() {
           </div>
         </div>
 
-        {staffTeachers.length === 0 && !error ? (
+        {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin mr-2" />
             <span>Memuat data...</span>
+          </div>
+        ) : staffTeachers.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Belum ada data guru & staf yang tersedia.</p>
           </div>
         ) : (
           <div

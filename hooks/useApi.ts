@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 
 export const useAnnouncements = () => {
   const [announcements, setAnnouncements] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -19,17 +20,20 @@ export const useAnnouncements = () => {
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchAnnouncements()
   }, [])
 
-  return { announcements, error }
+  return { announcements, loading, error }
 }
 
 export const useGallery = () => {
   const [gallery, setGallery] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -44,17 +48,20 @@ export const useGallery = () => {
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchGallery()
   }, [])
 
-  return { gallery, error }
+  return { gallery, loading, error }
 }
 
 export const useExtracurriculars = () => {
   const [extracurriculars, setExtracurriculars] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -69,17 +76,20 @@ export const useExtracurriculars = () => {
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchExtracurriculars()
   }, [])
 
-  return { extracurriculars, error }
+  return { extracurriculars, loading, error }
 }
 
 export const useStaffTeachers = () => {
   const [staffTeachers, setStaffTeachers] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -94,11 +104,13 @@ export const useStaffTeachers = () => {
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch")
+      } finally {
+        setLoading(false)
       }
     }
 
     fetchStaffTeachers()
   }, [])
 
-  return { staffTeachers, error }
+  return { staffTeachers, loading, error }
 }
