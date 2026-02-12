@@ -70,7 +70,7 @@ function StrukturOrganisasiPage() {
           Struktur Organisasi Sekolah
         </h1>
         <p className="max-w-3xl mx-auto text-muted-foreground text-base md:text-lg lg:text-xl">
-          Mengenal jajaran pimpinan, guru, dan staf yang membentuk struktur organisasi Sekolah Harapan Bangsa.
+          Mengenal jajaran pimpinan, guru, dan staf yang membentuk struktur organisasi SMK Teknologi Nasional.
         </p>
       </div>
 

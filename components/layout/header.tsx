@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Mountain, Menu } from "lucide-react"
 import { useMobileMenu } from "./mobile-menu-provider"
 import { useState, useEffect } from "react"
@@ -8,11 +9,24 @@ import { useState, useEffect } from "react"
 export function Header() {
   const { toggleMenu } = useMobileMenu()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [logoUrl, setLogoUrl] = useState("")
+
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8)
     onScroll()
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/page-settings")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data?.logoImage) {
+          setLogoUrl(res.data.logoImage)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const navItems = [
@@ -40,9 +54,12 @@ export function Header() {
       className={`sticky top-0 inset-x-0 z-50 px-4 lg:px-6 h-14 flex items-center justify-between border-b transition-all duration-300
     ${isScrolled ? "bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg" : "bg-background"}`}
     >
-      {/* Logo Sekolah (Kiri) */}
       <Link href="/" className="flex items-center gap-2 group">
-        <Mountain className="h-6 w-6 text-primary group-hover:scale-110 transition-transform duration-200" />
+        {logoUrl ? (
+          <Image src={logoUrl} alt="Logo" width={32} height={32} className="h-8 w-8 object-contain group-hover:scale-110 transition-transform duration-200" />
+        ) : (
+          <Mountain className="h-6 w-6 text-primary group-hover:scale-110 transition-transform duration-200" />
+        )}
         <span className="text-lg font-semibold group-hover:text-primary transition-colors duration-200">
           SMK TEKNOLOGI NASIONAL
         </span>

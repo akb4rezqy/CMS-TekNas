@@ -4,6 +4,7 @@
 School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailwind CSS, and Supabase as the backend database.
 
 ## Recent Changes
+- 2026-02-12: Added hero background image and logo upload in page settings admin. Header/Footer dynamically show uploaded logo. Homepage hero uses uploaded background or gradient fallback. Added contact messages inbox at /dashboard/messages with view/delete. Added DELETE endpoint to /api/contact. Dashboard sidebar now includes "Komunikasi > Pesan Masuk" menu.
 - 2026-02-11: Fixed page settings - admin panel now matches public page content (SMK TEKNOLOGI NASIONAL), with Supabase persistence via page_settings table. Dashboard stats now show real data from Supabase. Added /api/page-settings and /api/dashboard-stats API routes. Public homepage reads settings dynamically.
 - 2026-02-11: Added image upload API (/api/upload) using Supabase Storage. Dashboard gallery/extracurriculars forms now upload images permanently. Fixed scroll animation hook for dynamic content. Added loading states to all public pages.
 - 2026-02-11: Connected all dashboard & public pages to Supabase. Created API routes for announcements, gallery, extracurriculars, staff-teachers. Removed old external API references and localStorage-based services.

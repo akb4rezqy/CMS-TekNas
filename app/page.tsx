@@ -12,6 +12,8 @@ interface PageSettings {
   heroSubtitle: string
   heroPrimaryButtonText: string
   heroSecondaryButtonText: string
+  heroBackgroundImage: string
+  logoImage: string
   principalName: string
   principalTitle: string
   principalWelcomeText: string
@@ -32,6 +34,8 @@ const DEFAULTS: PageSettings = {
     "Kami berkomitmen untuk membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan lingkungan belajar yang inspiratif.",
   heroPrimaryButtonText: "Daftar Sekarang",
   heroSecondaryButtonText: "Jelajahi Program",
+  heroBackgroundImage: "",
+  logoImage: "",
   principalName: "Bapak Budi Santoso, S.Pd.",
   principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
   principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
@@ -83,13 +87,17 @@ function HomePage() {
           heroAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
         }`}
       >
-        <Image
-          src="/placeholder.svg?height=1080&width=1920&text=Students+Learning"
-          fill
-          alt="Students learning in classroom"
-          className="object-cover"
-          priority
-        />
+        {s.heroBackgroundImage ? (
+          <Image
+            src={s.heroBackgroundImage}
+            fill
+            alt="Hero background"
+            className="object-cover"
+            priority
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-600 to-slate-800" />
+        )}
         <div className="absolute inset-0 bg-black bg-opacity-40"></div>
         <div className="relative z-10 container px-4 md:px-6 text-center text-white">
           <div className="max-w-4xl mx-auto space-y-6">

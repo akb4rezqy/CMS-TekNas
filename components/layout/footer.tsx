@@ -1,7 +1,23 @@
+"use client"
+
 import Link from "next/link"
+import Image from "next/image"
 import { Mountain, Instagram, Mail, Phone, MapPin, Youtube } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export function Footer() {
+  const [logoUrl, setLogoUrl] = useState("")
+
+  useEffect(() => {
+    fetch("/api/page-settings")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data?.logoImage) {
+          setLogoUrl(res.data.logoImage)
+        }
+      })
+      .catch(() => {})
+  }, [])
   const navItems = [
     { name: "Beranda", href: "/" },
     { name: "Pengumuman", href: "/pengumuman" },
@@ -18,7 +34,11 @@ export function Footer() {
         {/* Section 1: School Name & Description */}
         <div className="space-y-4">
           <Link href="/" className="flex items-center gap-2">
-            <Mountain className="h-8 w-8 text-primary" />
+            {logoUrl ? (
+              <Image src={logoUrl} alt="Logo" width={32} height={32} className="h-8 w-8 object-contain" />
+            ) : (
+              <Mountain className="h-8 w-8 text-primary" />
+            )}
             <span className="text-xl font-bold">SMK TEKNOLOGI NASIONAL</span>
           </Link>
           <p className="text-sm text-muted-foreground">

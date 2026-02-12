@@ -184,7 +184,7 @@ function AnnouncementDetailPage() {
             <CardContent className="p-8 text-center">
               <h3 className="text-xl font-semibold mb-4">Ingin membaca pengumuman lainnya?</h3>
               <p className="text-muted-foreground mb-6">
-                Temukan lebih banyak pengumuman penting dari Sekolah Harapan Bangsa
+                Temukan lebih banyak pengumuman penting dari SMK Teknologi Nasional
               </p>
               <div className="flex gap-4 justify-center">
                 <Link href="/pengumuman">

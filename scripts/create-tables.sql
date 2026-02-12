@@ -69,3 +69,16 @@ CREATE TABLE IF NOT EXISTS page_settings (
 ALTER TABLE page_settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "anon_read_page_settings" ON page_settings
   FOR SELECT TO anon USING (true);
+
+-- Tabel Pesan Kontak
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;

@@ -23,7 +23,7 @@ function PengumumanPage() {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Pengumuman Terbaru</h1>
               <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
-                Dapatkan informasi dan berita penting terbaru dari Sekolah Harapan Bangsa.
+                Dapatkan informasi dan berita penting terbaru dari SMK Teknologi Nasional.
               </p>
             </div>
           </div>
@@ -52,7 +52,7 @@ function PengumumanPage() {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">Pengumuman Terbaru</h1>
             <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
-              Dapatkan informasi dan berita penting terbaru dari Sekolah Harapan Bangsa.
+              Dapatkan informasi dan berita penting terbaru dari SMK Teknologi Nasional.
             </p>
           </div>
         </div>

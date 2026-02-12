@@ -1,20 +1,23 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { Loader2, Save, Eye, Plus, Trash2 } from "lucide-react"
+import { Loader2, Save, Eye, Plus, Trash2, Upload, ImageIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import Image from "next/image"
 
 interface PageSettings {
   heroTitle: string
   heroSubtitle: string
   heroPrimaryButtonText: string
   heroSecondaryButtonText: string
+  heroBackgroundImage: string
+  logoImage: string
   principalName: string
   principalTitle: string
   principalWelcomeText: string
@@ -35,6 +38,8 @@ const DEFAULT_SETTINGS: PageSettings = {
     "Kami berkomitmen untuk membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan lingkungan belajar yang inspiratif.",
   heroPrimaryButtonText: "Daftar Sekarang",
   heroSecondaryButtonText: "Jelajahi Program",
+  heroBackgroundImage: "",
+  logoImage: "",
   principalName: "Bapak Budi Santoso, S.Pd.",
   principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
   principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
@@ -57,6 +62,98 @@ const DEFAULT_SETTINGS: PageSettings = {
   ctaButtonText: "Daftar Sekarang",
   siteTitle: "SMK TEKNOLOGI NASIONAL",
   siteDescription: "Sekolah menengah kejuruan teknologi terdepan yang menghasilkan generasi unggul untuk industri 4.0",
+}
+
+function ImageUploadField({
+  label,
+  description,
+  value,
+  onChange,
+  aspect,
+}: {
+  label: string
+  description: string
+  value: string
+  onChange: (url: string) => void
+  aspect?: string
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const { toast } = useToast()
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append("files", file)
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+      const result = await res.json()
+      if (result.success && result.urls?.[0]) {
+        onChange(result.urls[0])
+        toast({ title: "Gambar berhasil diupload" })
+      } else {
+        toast({ title: "Gagal upload", description: result.error, variant: "destructive" })
+      }
+    } catch {
+      toast({ title: "Gagal upload gambar", variant: "destructive" })
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ""
+    }
+  }
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label>{label}</Label>
+        <p className="text-xs text-muted-foreground mt-1">{description}</p>
+      </div>
+      {value ? (
+        <div className="relative group">
+          <div className={`relative ${aspect === "wide" ? "h-40" : "h-32 w-32"} rounded-lg overflow-hidden border`}>
+            <Image src={value} alt={label} fill className="object-cover" />
+          </div>
+          <div className="flex gap-2 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Upload className="mr-2 h-3 w-3" />}
+              Ganti
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => onChange("")}>
+              <Trash2 className="mr-2 h-3 w-3" />
+              Hapus
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors"
+          onClick={() => inputRef.current?.click()}
+        >
+          {uploading ? (
+            <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
+          ) : (
+            <>
+              <ImageIcon className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">Klik untuk upload gambar</p>
+              <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP (maks 5MB)</p>
+            </>
+          )}
+        </div>
+      )}
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+    </div>
+  )
 }
 
 export default function PageSettingsPage() {
@@ -200,6 +297,13 @@ export default function PageSettingsPage() {
                 />
               </div>
             </div>
+            <Separator />
+            <ImageUploadField
+              label="Logo Sekolah"
+              description="Logo akan ditampilkan di header dan footer website. Disarankan ukuran 200x200 px (format PNG transparan)."
+              value={settings.logoImage}
+              onChange={(url) => setSettings((prev) => ({ ...prev, logoImage: url }))}
+            />
           </CardContent>
         </Card>
 
@@ -208,6 +312,14 @@ export default function PageSettingsPage() {
             <CardTitle>Hero Section</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <ImageUploadField
+              label="Background Hero"
+              description="Gambar latar belakang di bagian atas halaman beranda. Disarankan ukuran 1920x1080 px."
+              value={settings.heroBackgroundImage}
+              onChange={(url) => setSettings((prev) => ({ ...prev, heroBackgroundImage: url }))}
+              aspect="wide"
+            />
+            <Separator />
             <div className="space-y-2">
               <Label htmlFor="heroTitle">Judul Utama</Label>
               <Textarea

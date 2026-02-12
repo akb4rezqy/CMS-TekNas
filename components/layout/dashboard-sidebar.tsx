@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Settings,
   FileEdit,
+  MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -50,6 +51,17 @@ const menuItems = [
         title: "Staff & Guru",
         url: "/dashboard/people/staff-teachers",
         icon: GraduationCap,
+      },
+    ],
+  },
+  {
+    title: "Komunikasi",
+    icon: MessageSquare,
+    items: [
+      {
+        title: "Pesan Masuk",
+        url: "/dashboard/messages",
+        icon: MessageSquare,
       },
     ],
   },
