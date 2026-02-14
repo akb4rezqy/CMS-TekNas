@@ -35,8 +35,11 @@ export default function MessagesPage() {
       const result = await res.json()
       if (result.success) {
         setMessages(result.data || [])
+      } else {
+        setMessages([])
       }
     } catch {
+      setMessages([])
       toast({ title: "Gagal memuat pesan", variant: "destructive" })
     } finally {
       setLoading(false)

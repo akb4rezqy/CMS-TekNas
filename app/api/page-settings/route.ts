@@ -28,7 +28,7 @@ export async function GET() {
       return NextResponse.json({ success: true, data: null, tableExists: true })
     }
 
-    return NextResponse.json({ success: true, data: data?.settings || null, tableExists: true })
+    return NextResponse.json({ success: true, data: (data as any)?.settings || null, tableExists: true })
   } catch {
     return NextResponse.json({ success: true, data: null, tableExists: false })
   }
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .upsert({ id: "main", settings: body, updated_at: new Date().toISOString() }, { onConflict: "id" })
+      .upsert({ id: "main", settings: body, updated_at: new Date().toISOString() } as any, { onConflict: "id" })
       .select()
       .single()
 
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ success: true, data: data?.settings })
+    return NextResponse.json({ success: true, data: (data as any)?.settings })
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 })
   }
