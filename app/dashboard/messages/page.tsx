@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 
 interface ContactMessage {
-  id: number
+  id: string
   name: string
   email: string
   subject: string
@@ -50,7 +50,7 @@ export default function MessagesPage() {
     loadMessages()
   }, [])
 
-  const deleteMessage = async (id: number) => {
+  const deleteMessage = async (id: string) => {
     try {
       const res = await fetch(`/api/contact?id=${id}`, { method: "DELETE" })
       const result = await res.json()
