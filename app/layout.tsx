@@ -1,11 +1,11 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Montserrat } from "next/font/google"
+import { Red_Hat_Display } from "next/font/google"
 import "./globals.css"
 
-const montserrat = Montserrat({
+const redHatDisplay = Red_Hat_Display({
   subsets: ["latin"],
-  variable: "--font-montserrat",
+  variable: "--font-red-hat-display",
 })
 
 export const metadata: Metadata = {
@@ -20,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={montserrat.variable}>
-      <body className={montserrat.className}>
+    <html lang="en" className={redHatDisplay.variable}>
+      <body className={redHatDisplay.className}>
         {children}
       </body>
     </html>
