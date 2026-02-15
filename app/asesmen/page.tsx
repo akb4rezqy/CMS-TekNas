@@ -14,26 +14,21 @@ interface Assessment {
   sort_order: number
 }
 
-const CLASS_OPTIONS = [
-  { grade: "10", major: "TKJ", label: "10 TKJ" },
-  { grade: "10", major: "TKR", label: "10 TKR" },
-  { grade: "11", major: "TKJ", label: "11 TKJ" },
-  { grade: "11", major: "TKR", label: "11 TKR" },
-  { grade: "12", major: "TKJ", label: "12 TKJ" },
-  { grade: "12", major: "TKR", label: "12 TKR" },
-]
+const GRADES = ["10", "11", "12"]
+const MAJORS = ["TKJ", "TKR"]
 
 const DAY_ORDER = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"]
 
 function AsesmenPage() {
-  const [selectedClass, setSelectedClass] = useState<{ grade: string; major: string } | null>(null)
+  const [selectedGrade, setSelectedGrade] = useState<string | null>(null)
+  const [selectedMajor, setSelectedMajor] = useState<string | null>(null)
   const [assessments, setAssessments] = useState<Assessment[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!selectedClass) return
+    if (!selectedGrade || !selectedMajor) return
     setLoading(true)
-    fetch(`/api/assessments?grade=${selectedClass.grade}&major=${selectedClass.major}`)
+    fetch(`/api/assessments?grade=${selectedGrade}&major=${selectedMajor}`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) setAssessments(res.data)
@@ -41,7 +36,7 @@ function AsesmenPage() {
       })
       .catch(() => setAssessments([]))
       .finally(() => setLoading(false))
-  }, [selectedClass])
+  }, [selectedGrade, selectedMajor])
 
   const groupedByDay = DAY_ORDER.map((day) => ({
     day,
@@ -50,9 +45,7 @@ function AsesmenPage() {
       .sort((a, b) => a.sort_order - b.sort_order),
   })).filter((g) => g.subjects.length > 0)
 
-  const selectedLabel = selectedClass
-    ? CLASS_OPTIONS.find((c) => c.grade === selectedClass.grade && c.major === selectedClass.major)?.label
-    : null
+  const isFullySelected = selectedGrade && selectedMajor
 
   return (
     <div>
@@ -66,34 +59,67 @@ function AsesmenPage() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 -mt-8 pb-16">
-        {!selectedClass ? (
+        {!isFullySelected ? (
           <div className="bg-white rounded-xl shadow-sm border p-6 md:p-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-5">Pilih Kelas & Jurusan</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {CLASS_OPTIONS.map((cls) => (
-                <button
-                  key={cls.label}
-                  onClick={() => setSelectedClass({ grade: cls.grade, major: cls.major })}
-                  className="flex items-center justify-between p-4 rounded-xl border-2 border-gray-100 hover:border-[rgba(10,46,125,1)] hover:bg-blue-50 transition-all duration-200 group"
-                >
-                  <div className="text-left">
-                    <p className="text-xs text-gray-400 font-medium">Kelas</p>
-                    <p className="text-lg font-bold text-gray-900 group-hover:text-[rgba(10,46,125,1)]">{cls.label}</p>
-                  </div>
-                  <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-[rgba(10,46,125,1)] transition-colors" />
-                </button>
-              ))}
-            </div>
+            {!selectedGrade ? (
+              <>
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">Pilih Kelas</h2>
+                <div className="grid grid-cols-3 gap-3">
+                  {GRADES.map((grade) => (
+                    <button
+                      key={grade}
+                      onClick={() => setSelectedGrade(grade)}
+                      className="flex items-center justify-between p-5 rounded-xl border-2 border-gray-100 hover:border-[rgba(10,46,125,1)] hover:bg-blue-50 transition-all duration-200 group"
+                    >
+                      <div className="text-left">
+                        <p className="text-xs text-gray-400 font-medium">Kelas</p>
+                        <p className="text-2xl font-bold text-gray-900 group-hover:text-[rgba(10,46,125,1)]">{grade}</p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-[rgba(10,46,125,1)] transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center gap-2 mb-5">
+                  <button
+                    onClick={() => setSelectedGrade(null)}
+                    className="text-sm text-gray-400 hover:text-[rgba(10,46,125,1)] transition-colors"
+                  >
+                    Pilih Kelas
+                  </button>
+                  <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
+                  <span className="text-sm font-semibold text-gray-900">Kelas {selectedGrade}</span>
+                </div>
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">Pilih Jurusan</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {MAJORS.map((major) => (
+                    <button
+                      key={major}
+                      onClick={() => setSelectedMajor(major)}
+                      className="flex items-center justify-between p-5 rounded-xl border-2 border-gray-100 hover:border-[rgba(10,46,125,1)] hover:bg-blue-50 transition-all duration-200 group"
+                    >
+                      <div className="text-left">
+                        <p className="text-xs text-gray-400 font-medium">Jurusan</p>
+                        <p className="text-2xl font-bold text-gray-900 group-hover:text-[rgba(10,46,125,1)]">{major}</p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-[rgba(10,46,125,1)] transition-colors" />
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
             <div className="bg-white rounded-xl shadow-sm border p-4 flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-400">Kelas & Jurusan</p>
-                <p className="text-xl font-bold text-gray-900">{selectedLabel}</p>
+                <p className="text-xl font-bold text-gray-900">{selectedGrade} {selectedMajor}</p>
               </div>
               <button
-                onClick={() => { setSelectedClass(null); setAssessments([]) }}
+                onClick={() => { setSelectedGrade(null); setSelectedMajor(null); setAssessments([]) }}
                 className="px-4 py-2 text-sm font-medium text-[rgba(10,46,125,1)] bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
               >
                 Ganti Kelas
