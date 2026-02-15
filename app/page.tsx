@@ -75,7 +75,7 @@ function HomePage() {
 
   const heroAnimation = useScrollAnimation(0.1)
   const sambutanAnimation = useScrollAnimation(0.2)
-  const announcementAnimation = useScrollAnimation(0.2)
+
   const profilAnimation = useScrollAnimation(0.2)
   const ctaAnimation = useScrollAnimation(0.2)
 
@@ -182,11 +182,52 @@ function HomePage() {
         </div>
       </section>
 
+      <section
+        ref={profilAnimation.ref}
+        id="profil-sekolah"
+        className={`w-full py-12 md:py-24 lg:py-32 bg-background transition-all duration-1000 ${
+          profilAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
+        <div className="container px-4 md:px-6">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Profil Sekolah</h2>
+              <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
+                Mengenal lebih dalam tentang visi, misi, dan tujuan pendidikan teknologi vokasi kami.
+              </p>
+            </div>
+          </div>
+          <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:grid-cols-2 py-12">
+            <Card className="flex flex-col p-6">
+              <CardHeader className="p-0 mb-4">
+                <CardTitle className="text-2xl font-bold">Visi</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 text-muted-foreground">
+                <p>{s.schoolVision}</p>
+              </CardContent>
+            </Card>
+            <Card className="flex flex-col p-6">
+              <CardHeader className="p-0 mb-4">
+                <CardTitle className="text-2xl font-bold">Misi</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 text-muted-foreground">
+                <ul className="list-disc list-inside space-y-2">
+                  {s.schoolMissions.map((mission, idx) => (
+                    <li key={idx}>{mission}</li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {latestAnnouncements.length > 0 && (
         <section
-          ref={announcementAnimation.ref}
+          ref={ctaAnimation.ref}
           className={`w-full py-12 md:py-24 lg:py-32 bg-muted/50 transition-all duration-1000 ${
-            announcementAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            ctaAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
           <div className="container px-4 md:px-6">
@@ -239,70 +280,6 @@ function HomePage() {
           </div>
         </section>
       )}
-
-      <section
-        ref={profilAnimation.ref}
-        id="profil-sekolah"
-        className={`w-full py-12 md:py-24 lg:py-32 bg-background transition-all duration-1000 ${
-          profilAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="container px-4 md:px-6">
-          <div className="flex flex-col items-center justify-center space-y-4 text-center">
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Profil Sekolah</h2>
-              <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
-                Mengenal lebih dalam tentang visi, misi, dan tujuan pendidikan teknologi vokasi kami.
-              </p>
-            </div>
-          </div>
-          <div className="mx-auto grid max-w-5xl items-start gap-8 sm:grid-cols-1 md:grid-cols-2 py-12">
-            <Card className="flex flex-col p-6">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-2xl font-bold">Visi</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 text-muted-foreground">
-                <p>{s.schoolVision}</p>
-              </CardContent>
-            </Card>
-            <Card className="flex flex-col p-6">
-              <CardHeader className="p-0 mb-4">
-                <CardTitle className="text-2xl font-bold">Misi</CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 text-muted-foreground">
-                <ul className="list-disc list-inside space-y-2">
-                  {s.schoolMissions.map((mission, idx) => (
-                    <li key={idx}>{mission}</li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section
-        ref={ctaAnimation.ref}
-        id="cta"
-        className={`w-full py-12 md:py-24 lg:py-32 bg-primary text-primary-foreground transition-all duration-1000 ${
-          ctaAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <div className="container grid items-center justify-center gap-4 px-4 text-center md:px-6">
-          <div className="space-y-3">
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">{s.ctaTitle}</h2>
-            <p className="mx-auto max-w-[600px] md:text-xl lg:text-base xl:text-xl">{s.ctaSubtitle}</p>
-          </div>
-          <div className="flex justify-center">
-            <Link
-              href="#"
-              className="inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium text-secondary-foreground shadow transition-all duration-300 hover:bg-secondary/90 hover:scale-105 hover:shadow-lg active:scale-95 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-blue-100"
-            >
-              {s.ctaButtonText}
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   )
 }
