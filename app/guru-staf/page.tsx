@@ -7,6 +7,10 @@ import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 import { useStaffTeachers } from "@/hooks/useApi"
 
+function getDefaultAvatar(gender?: string) {
+  return gender === "female" ? "/default-female.png" : "/default-male.jpg"
+}
+
 function GuruStafPage() {
   const headerAnimation = useScrollAnimation(0.1)
   const contentAnimation = useScrollAnimation(0.2)
@@ -69,7 +73,7 @@ function GuruStafPage() {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <Image
-                  src="/placeholder.svg?height=150&width=150"
+                  src={person.photo_url || getDefaultAvatar(person.gender)}
                   width={150}
                   height={150}
                   alt={person.name}

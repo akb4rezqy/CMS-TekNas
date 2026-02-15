@@ -6,6 +6,7 @@ import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import { CalendarDays, ArrowRight, ImageIcon } from "lucide-react"
 
 interface PageSettings {
   heroTitle: string
@@ -26,6 +27,14 @@ interface PageSettings {
   ctaButtonText: string
   siteTitle: string
   siteDescription: string
+}
+
+interface Announcement {
+  id: string
+  title: string
+  content: string
+  image_url?: string | null
+  created_at: string
 }
 
 const DEFAULTS: PageSettings = {
@@ -62,9 +71,11 @@ const DEFAULTS: PageSettings = {
 
 function HomePage() {
   const [s, setS] = useState<PageSettings>(DEFAULTS)
+  const [latestAnnouncements, setLatestAnnouncements] = useState<Announcement[]>([])
 
   const heroAnimation = useScrollAnimation(0.1)
   const sambutanAnimation = useScrollAnimation(0.2)
+  const announcementAnimation = useScrollAnimation(0.2)
   const profilAnimation = useScrollAnimation(0.2)
   const ctaAnimation = useScrollAnimation(0.2)
 
@@ -74,6 +85,15 @@ function HomePage() {
       .then((result) => {
         if (result.success && result.data) {
           setS({ ...DEFAULTS, ...result.data })
+        }
+      })
+      .catch(() => {})
+
+    fetch("/api/announcements/latest")
+      .then((r) => r.json())
+      .then((result) => {
+        if (result.success && result.data) {
+          setLatestAnnouncements(result.data)
         }
       })
       .catch(() => {})
@@ -161,6 +181,78 @@ function HomePage() {
           </div>
         </div>
       </section>
+
+      {latestAnnouncements.length > 0 && (
+        <section
+          ref={announcementAnimation.ref}
+          className={`w-full py-12 md:py-24 lg:py-32 bg-muted/50 transition-all duration-1000 ${
+            announcementAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Pengumuman Terbaru</h2>
+                <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
+                  Informasi dan berita penting terbaru dari SMK Teknologi Nasional.
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {latestAnnouncements.map((ann) => (
+                <Link key={ann.id} href={`/pengumuman/${ann.id}`}>
+                  <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
+                    <div className="relative h-48 bg-muted overflow-hidden">
+                      {ann.image_url ? (
+                        <Image
+                          src={ann.image_url}
+                          fill
+                          alt={ann.title}
+                          className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                          <ImageIcon className="h-12 w-12 text-primary/30" />
+                        </div>
+                      )}
+                    </div>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="line-clamp-2 text-lg leading-tight group-hover:text-primary transition-colors">
+                        {ann.title}
+                      </CardTitle>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <CalendarDays className="h-4 w-4 mr-2" />
+                        {new Date(ann.created_at).toLocaleDateString("id-ID", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {ann.content.replace(/<[^>]*>/g, "").substring(0, 120)}...
+                      </p>
+                      <div className="flex items-center text-primary text-sm font-medium mt-3 group-hover:gap-2 transition-all">
+                        Baca Selengkapnya
+                        <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+            <div className="flex justify-center mt-8">
+              <Link
+                href="/pengumuman"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+              >
+                Lihat Semua Pengumuman
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section
         ref={profilAnimation.ref}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Loader2, Mail, Trash2, Eye, RefreshCw } from "lucide-react"
@@ -11,6 +11,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog"
 
 interface ContactMessage {
@@ -26,6 +28,8 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedMessage, setSelectedMessage] = useState<ContactMessage | null>(null)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const { toast } = useToast()
 
   const loadMessages = async () => {
@@ -50,19 +54,28 @@ export default function MessagesPage() {
     loadMessages()
   }, [])
 
-  const deleteMessage = async (id: string) => {
+  const confirmDelete = (id: string) => {
+    setDeleteId(id)
+    setSelectedMessage(null)
+  }
+
+  const handleDelete = async () => {
+    if (!deleteId) return
+    setDeleting(true)
     try {
-      const res = await fetch(`/api/contact?id=${id}`, { method: "DELETE" })
+      const res = await fetch(`/api/contact?id=${deleteId}`, { method: "DELETE" })
       const result = await res.json()
       if (result.success) {
-        setMessages((prev) => prev.filter((m) => m.id !== id))
+        setMessages((prev) => prev.filter((m) => m.id !== deleteId))
         toast({ title: "Pesan berhasil dihapus" })
-        if (selectedMessage?.id === id) setSelectedMessage(null)
+        setDeleteId(null)
       } else {
         toast({ title: "Gagal menghapus", variant: "destructive" })
       }
     } catch {
       toast({ title: "Gagal menghapus pesan", variant: "destructive" })
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -141,7 +154,7 @@ export default function MessagesPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => deleteMessage(msg.id)}
+                      onClick={() => confirmDelete(msg.id)}
                     >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
@@ -184,7 +197,7 @@ export default function MessagesPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => deleteMessage(selectedMessage.id)}
+                  onClick={() => confirmDelete(selectedMessage.id)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Hapus Pesan
@@ -192,6 +205,26 @@ export default function MessagesPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Hapus Pesan</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menghapus pesan ini? Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Batal
+            </Button>
+            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Hapus
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

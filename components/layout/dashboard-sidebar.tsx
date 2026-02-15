@@ -13,6 +13,7 @@ import {
   Settings,
   FileEdit,
   MessageSquare,
+  Network,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -73,6 +74,11 @@ const menuItems = [
         title: "Pengaturan Halaman",
         url: "/dashboard/website/page-settings",
         icon: FileEdit,
+      },
+      {
+        title: "Struktur Organisasi",
+        url: "/dashboard/website/org-structure",
+        icon: Network,
       },
     ],
   },

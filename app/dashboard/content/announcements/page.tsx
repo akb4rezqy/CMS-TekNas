@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -17,8 +17,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Loader2, AlertCircle } from "lucide-react"
+import { Plus, Edit, Trash2, Loader2, AlertCircle, Upload, X, ImageIcon } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import Image from "next/image"
 
 interface Announcement {
   id: string
@@ -27,6 +28,7 @@ interface Announcement {
   date: string
   author: string
   status: "draft" | "published"
+  image_url?: string | null
   created_at: string
   updated_at: string
 }
@@ -42,14 +44,16 @@ export default function AnnouncementsPage() {
     date: new Date().toISOString().split("T")[0],
     author: "Admin",
     status: "published" as "draft" | "published",
+    image_url: "" as string | null,
   })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
 
   const fetchAnnouncements = async () => {
-    console.log("[v0] Fetching announcements...")
     setLoading(true)
     setError(null)
 
@@ -59,7 +63,6 @@ export default function AnnouncementsPage() {
 
       if (result.success) {
         setAnnouncements(result.data)
-        console.log("[v0] Successfully loaded announcements:", result.data.length)
       } else {
         setError(result.error || "Failed to load announcements")
         toast({
@@ -68,8 +71,7 @@ export default function AnnouncementsPage() {
           variant: "destructive",
         })
       }
-    } catch (error) {
-      console.log("[v0] Fetch error:", error)
+    } catch {
       setError("Network error occurred")
       toast({
         title: "Terjadi kesalahan",
@@ -85,21 +87,42 @@ export default function AnnouncementsPage() {
     fetchAnnouncements()
   }, [])
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append("files", file)
+      const res = await fetch("/api/upload", { method: "POST", body: fd })
+      const result = await res.json()
+      if (result.success && result.urls?.[0]) {
+        setFormData((prev) => ({ ...prev, image_url: result.urls[0] }))
+        toast({ title: "Gambar berhasil diupload" })
+      } else {
+        toast({ title: "Gagal upload gambar", description: result.error, variant: "destructive" })
+      }
+    } catch {
+      toast({ title: "Gagal upload gambar", variant: "destructive" })
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log("[v0] Submitting form:", { editingId, formData })
     setSubmitting(true)
 
     try {
-      let result
-
       if (editingId) {
         const res = await fetch(`/api/announcements/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         })
-        result = await res.json()
+        const result = await res.json()
 
         if (result.success) {
           await fetchAnnouncements()
@@ -113,7 +136,7 @@ export default function AnnouncementsPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         })
-        result = await res.json()
+        const result = await res.json()
 
         if (result.success) {
           await fetchAnnouncements()
@@ -123,17 +146,8 @@ export default function AnnouncementsPage() {
         }
       }
 
-      setFormData({
-        title: "",
-        content: "",
-        date: new Date().toISOString().split("T")[0],
-        author: "Admin",
-        status: "published",
-      })
-      setShowForm(false)
-      setEditingId(null)
+      resetForm()
     } catch (error) {
-      console.log("[v0] Submit error:", error)
       toast({
         title: "Terjadi kesalahan",
         description: error instanceof Error ? error.message : "Gagal menyimpan pengumuman",
@@ -145,13 +159,13 @@ export default function AnnouncementsPage() {
   }
 
   const handleEdit = (announcement: Announcement) => {
-    console.log("[v0] Editing announcement:", announcement.id)
     setFormData({
       title: announcement.title,
       content: announcement.content,
       date: announcement.date,
       author: announcement.author,
       status: announcement.status,
+      image_url: announcement.image_url || "",
     })
     setEditingId(announcement.id)
     setShowForm(true)
@@ -160,7 +174,6 @@ export default function AnnouncementsPage() {
   const handleDelete = async () => {
     if (!deleteId) return
 
-    console.log("[v0] Deleting announcement:", deleteId)
     setSubmitting(true)
 
     try {
@@ -175,7 +188,6 @@ export default function AnnouncementsPage() {
         throw new Error(result.error || "Delete failed")
       }
     } catch (error) {
-      console.log("[v0] Delete error:", error)
       toast({
         title: "Terjadi kesalahan",
         description: error instanceof Error ? error.message : "Gagal menghapus pengumuman",
@@ -193,6 +205,7 @@ export default function AnnouncementsPage() {
       date: new Date().toISOString().split("T")[0],
       author: "Admin",
       status: "published",
+      image_url: "",
     })
     setEditingId(null)
     setShowForm(false)
@@ -253,7 +266,6 @@ export default function AnnouncementsPage() {
         </Button>
       </div>
 
-      {/* Announcements Table */}
       <Card>
         <CardHeader>
           <CardTitle>Daftar Pengumuman</CardTitle>
@@ -267,6 +279,7 @@ export default function AnnouncementsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Gambar</TableHead>
                   <TableHead>Judul</TableHead>
                   <TableHead>Penulis</TableHead>
                   <TableHead>Status</TableHead>
@@ -277,7 +290,23 @@ export default function AnnouncementsPage() {
               <TableBody>
                 {announcements.map((announcement) => (
                   <TableRow key={announcement.id}>
-                    <TableCell className="font-medium">{announcement.title}</TableCell>
+                    <TableCell>
+                      {announcement.image_url ? (
+                        <div className="relative w-12 h-12 rounded overflow-hidden">
+                          <Image
+                            src={announcement.image_url}
+                            alt={announcement.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium max-w-[200px] truncate">{announcement.title}</TableCell>
                     <TableCell>{announcement.author}</TableCell>
                     <TableCell>
                       <span
@@ -309,9 +338,8 @@ export default function AnnouncementsPage() {
         </CardContent>
       </Card>
 
-      {/* Add/Edit Form Dialog */}
       <Dialog open={showForm} onOpenChange={resetForm}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit Pengumuman" : "Tambah Pengumuman"}</DialogTitle>
           </DialogHeader>
@@ -326,6 +354,55 @@ export default function AnnouncementsPage() {
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label>Gambar Pengumuman</Label>
+              {formData.image_url ? (
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                  <Image
+                    src={formData.image_url}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={() => setFormData((prev) => ({ ...prev, image_url: "" }))}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <div
+                  className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span className="text-sm text-muted-foreground">Mengupload...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Klik untuk upload gambar (opsional)</p>
+                      <p className="text-xs text-muted-foreground mt-1">JPG, PNG, WebP (maks 5MB)</p>
+                    </>
+                  )}
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="content">Konten</Label>
               <Textarea
@@ -384,7 +461,6 @@ export default function AnnouncementsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>

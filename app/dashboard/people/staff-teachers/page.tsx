@@ -2,22 +2,24 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Plus, Edit, Trash2, Loader2, GraduationCap, AlertCircle } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog"
+import { Plus, Edit, Trash2, Loader2, GraduationCap, AlertCircle, Upload, X } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import Image from "next/image"
 
 interface StaffTeacher {
   id: string
   name: string
   position: string
   description: string
+  gender?: "male" | "female"
+  photo_url?: string | null
   created_at: string
   updated_at: string
 }
@@ -27,11 +29,23 @@ export default function StaffTeachersPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ name: "", position: "", description: "" })
+  const [formData, setFormData] = useState({
+    name: "",
+    position: "",
+    description: "",
+    gender: "male" as "male" | "female",
+    photo_url: "" as string | null,
+  })
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
+
+  const getDefaultPhoto = (gender: string) => {
+    return gender === "female" ? "/default-female.png" : "/default-male.jpg"
+  }
 
   const fetchStaffTeachers = async () => {
     setLoading(true)
@@ -45,7 +59,7 @@ export default function StaffTeachersPage() {
         setError(result.error || "Failed to load staff teachers")
         toast({ title: "Terjadi kesalahan", description: result.error || "Gagal memuat data staff", variant: "destructive" })
       }
-    } catch (err) {
+    } catch {
       setError("Network error occurred")
       toast({ title: "Terjadi kesalahan", description: "Gagal memuat data staff", variant: "destructive" })
     } finally {
@@ -57,16 +71,48 @@ export default function StaffTeachersPage() {
     fetchStaffTeachers()
   }, [])
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const fd = new FormData()
+      fd.append("files", file)
+      const res = await fetch("/api/upload", { method: "POST", body: fd })
+      const result = await res.json()
+      if (result.success && result.urls?.[0]) {
+        setFormData((prev) => ({ ...prev, photo_url: result.urls[0] }))
+        toast({ title: "Foto berhasil diupload" })
+      } else {
+        toast({ title: "Gagal upload foto", description: result.error, variant: "destructive" })
+      }
+    } catch {
+      toast({ title: "Gagal upload foto", variant: "destructive" })
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
 
     try {
+      const submitData = {
+        name: formData.name,
+        position: formData.position,
+        description: formData.description,
+        gender: formData.gender,
+        photo_url: formData.photo_url || null,
+      }
+
       if (editingId) {
         const res = await fetch(`/api/staff-teachers/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submitData),
         })
         const result = await res.json()
         if (result.success) {
@@ -79,7 +125,7 @@ export default function StaffTeachersPage() {
         const res = await fetch("/api/staff-teachers", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submitData),
         })
         const result = await res.json()
         if (result.success) {
@@ -90,9 +136,7 @@ export default function StaffTeachersPage() {
         }
       }
 
-      setFormData({ name: "", position: "", description: "" })
-      setShowForm(false)
-      setEditingId(null)
+      resetForm()
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
@@ -109,6 +153,8 @@ export default function StaffTeachersPage() {
       name: staff.name,
       position: staff.position,
       description: staff.description,
+      gender: staff.gender || "male",
+      photo_url: staff.photo_url || "",
     })
     setEditingId(staff.id)
     setShowForm(true)
@@ -140,18 +186,9 @@ export default function StaffTeachersPage() {
   }
 
   const resetForm = () => {
-    setFormData({ name: "", position: "", description: "" })
+    setFormData({ name: "", position: "", description: "", gender: "male", photo_url: "" })
     setEditingId(null)
     setShowForm(false)
-  }
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
   }
 
   if (error && !loading) {
@@ -209,7 +246,6 @@ export default function StaffTeachersPage() {
         </Button>
       </div>
 
-      {/* Staff Grid */}
       {staffTeachers.length === 0 ? (
         <Card>
           <CardContent className="text-center py-8">
@@ -222,10 +258,14 @@ export default function StaffTeachersPage() {
             <Card key={staff.id} className="overflow-hidden">
               <CardHeader className="text-center pb-4">
                 <div className="flex justify-center mb-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={`/placeholder-80x80.png?height=80&width=80&text=${getInitials(staff.name)}`} />
-                    <AvatarFallback className="text-lg font-semibold">{getInitials(staff.name)}</AvatarFallback>
-                  </Avatar>
+                  <div className="relative h-24 w-24 rounded-full overflow-hidden border-2 border-muted">
+                    <Image
+                      src={staff.photo_url || getDefaultPhoto(staff.gender || "male")}
+                      alt={staff.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
                 <CardTitle className="text-lg">{staff.name}</CardTitle>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -254,13 +294,63 @@ export default function StaffTeachersPage() {
         </div>
       )}
 
-      {/* Add/Edit Form Dialog */}
       <Dialog open={showForm} onOpenChange={resetForm}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingId ? "Edit Data Staff" : "Tambah Data Staff"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label>Foto Profil</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-muted shrink-0">
+                  <Image
+                    src={formData.photo_url || getDefaultPhoto(formData.gender)}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1 space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                    >
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                      ) : (
+                        <Upload className="h-4 w-4 mr-1" />
+                      )}
+                      Upload Foto
+                    </Button>
+                    {formData.photo_url && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFormData((prev) => ({ ...prev, photo_url: "" }))}
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Hapus
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Opsional. Jika tidak diupload, akan menggunakan foto default.</p>
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">Nama Lengkap</Label>
               <Input
@@ -271,6 +361,20 @@ export default function StaffTeachersPage() {
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="gender">Jenis Kelamin</Label>
+              <select
+                id="gender"
+                value={formData.gender}
+                onChange={(e) => setFormData((prev) => ({ ...prev, gender: e.target.value as "male" | "female" }))}
+                className="w-full px-3 py-2 border border-input bg-background rounded-md"
+              >
+                <option value="male">Laki-laki</option>
+                <option value="female">Perempuan</option>
+              </select>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="position">Jabatan</Label>
               <Input
@@ -305,15 +409,14 @@ export default function StaffTeachersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Hapus Data Staff</DialogTitle>
+            <DialogDescription>
+              Apakah Anda yakin ingin menghapus data staff ini? Tindakan ini tidak dapat dibatalkan.
+            </DialogDescription>
           </DialogHeader>
-          <p className="text-muted-foreground">
-            Apakah Anda yakin ingin menghapus data staff ini? Tindakan ini tidak dapat dibatalkan.
-          </p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteId(null)}>
               Batal

@@ -8,9 +8,16 @@ import { useSupabaseRealtime } from "@/hooks/use-supabase-realtime"
 type Staff = {
   id: string
   name: string
+  position?: string | null
   role?: string | null
   subject?: string | null
+  gender?: string | null
+  photo_url?: string | null
   avatar_url?: string | null
+}
+
+function getDefaultAvatar(gender?: string | null) {
+  return gender === "female" ? "/default-female.png" : "/default-male.jpg"
 }
 
 const fetchStaff = async (): Promise<Staff[]> => {
@@ -40,18 +47,14 @@ export function StaffSection() {
             <Card key={p.id} className="overflow-hidden">
               <div className="aspect-square w-full bg-muted">
                 <img
-                  src={
-                    p.avatar_url ||
-                    "/placeholder.svg?height=360&width=360&query=teacher%20portrait" ||
-                    "/placeholder.svg"
-                  }
+                  src={p.photo_url || p.avatar_url || getDefaultAvatar(p.gender)}
                   alt={p.name}
                   className="h-full w-full object-cover"
-                  crossOrigin="anonymous"
                 />
               </div>
               <div className="p-3">
                 <p className="text-sm font-medium">{p.name}</p>
+                {p.position ? <p className="text-xs text-muted-foreground">{p.position}</p> : null}
                 {p.role ? <p className="text-xs text-muted-foreground">{p.role}</p> : null}
                 {p.subject ? <p className="text-xs text-muted-foreground">{p.subject}</p> : null}
               </div>

@@ -5,6 +5,8 @@ export interface StaffTeacher {
   name: string
   position: string
   description: string
+  gender?: "male" | "female"
+  photo_url?: string | null
   created_at: string
   updated_at: string
 }
@@ -30,17 +32,30 @@ export class StaffTeachersService {
   ): Promise<{ data?: StaffTeacher; success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
+      const insertData: any = {
+        name: input.name,
+        position: input.position,
+        description: input.description,
+      }
+      if (input.gender !== undefined) insertData.gender = input.gender
+      if (input.photo_url !== undefined) insertData.photo_url = input.photo_url || null
+
       const { data, error } = await supabase
         .from("staff_teachers")
-        .insert({
-          name: input.name,
-          position: input.position,
-          description: input.description,
-        } as any)
+        .insert(insertData)
         .select("*")
         .single()
 
-      if (error) return { success: false, error: error.message }
+      if (error) {
+        if (error.message.includes("gender") || error.message.includes("photo_url")) {
+          delete insertData.gender
+          delete insertData.photo_url
+          const retry = await supabase.from("staff_teachers").insert(insertData).select("*").single()
+          if (retry.error) return { success: false, error: retry.error.message }
+          return { data: retry.data as StaffTeacher, success: true }
+        }
+        return { success: false, error: error.message }
+      }
       return { data: data as StaffTeacher, success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
@@ -53,17 +68,28 @@ export class StaffTeachersService {
   ): Promise<{ data?: StaffTeacher; success: boolean; error?: string }> {
     try {
       const supabase = getServiceSupabase()
+      const updateData: any = {
+        ...patch,
+        updated_at: new Date().toISOString(),
+      }
+
       const { data, error } = await supabase
         .from("staff_teachers")
-        .update({
-          ...patch,
-          updated_at: new Date().toISOString(),
-        } as any)
+        .update(updateData)
         .eq("id", id)
         .select("*")
         .single()
 
-      if (error) return { success: false, error: error.message }
+      if (error) {
+        if (error.message.includes("gender") || error.message.includes("photo_url")) {
+          delete updateData.gender
+          delete updateData.photo_url
+          const retry = await supabase.from("staff_teachers").update(updateData).eq("id", id).select("*").single()
+          if (retry.error) return { success: false, error: retry.error.message }
+          return { data: retry.data as StaffTeacher, success: true }
+        }
+        return { success: false, error: error.message }
+      }
       return { data: data as StaffTeacher, success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" }

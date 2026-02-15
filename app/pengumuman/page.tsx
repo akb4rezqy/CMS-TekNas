@@ -5,7 +5,7 @@ import Image from "next/image"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAnnouncements } from "@/hooks/useApi"
-import { CalendarDays, ArrowRight, Loader2 } from "lucide-react"
+import { CalendarDays, ArrowRight, Loader2, ImageIcon } from "lucide-react"
 import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
@@ -87,15 +87,19 @@ function PengumumanPage() {
                 className="flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-2 group"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Placeholder image */}
                 <div className="relative h-48 bg-muted overflow-hidden">
-                  <Image
-                    src="/placeholder.svg?height=200&width=300&text=Pengumuman"
-                    width={300}
-                    height={200}
-                    alt={announcement.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
+                  {announcement.image_url ? (
+                    <Image
+                      src={announcement.image_url}
+                      fill
+                      alt={announcement.title}
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                      <ImageIcon className="h-12 w-12 text-primary/30" />
+                    </div>
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
@@ -114,7 +118,6 @@ function PengumumanPage() {
                 </CardHeader>
 
                 <CardContent className="flex-1">
-                  {/* Extract text from HTML content for preview */}
                   <p className="text-sm text-muted-foreground line-clamp-3">
                     {announcement.content.replace(/<[^>]*>/g, "").substring(0, 150)}...
                   </p>
