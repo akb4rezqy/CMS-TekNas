@@ -9,8 +9,8 @@ const redHatDisplay = Red_Hat_Display({
 })
 
 export const metadata: Metadata = {
-  title: "SMK Teknologi Nasional",
-  description: "Website resmi SMK Teknologi Nasional - Pendidikan vokasi teknologi yang inovatif dan inspiratif",
+  title: "SMK Teknologi Nasional Kota Bekasi",
+  description: "Website resmi SMK Teknologi Nasional Kota Bekasi - Pendidikan vokasi teknologi yang inovatif dan inspiratif",
 }
 
 export default function RootLayout({
