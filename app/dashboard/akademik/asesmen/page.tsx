@@ -150,7 +150,7 @@ export default function AsesmenAdminPage() {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               activeClass.label === cls.label
                 ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-accent"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             {cls.label}
