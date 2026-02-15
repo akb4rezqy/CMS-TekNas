@@ -46,6 +46,7 @@ export function Header() {
         { name: "Struktur Organisasi", href: "/struktur" },
       ],
     },
+    { name: "Asesmen", href: "/asesmen" },
     { name: "Kontak", href: "/kontak" },
   ]
 

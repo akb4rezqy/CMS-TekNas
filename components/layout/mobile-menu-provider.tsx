@@ -88,6 +88,7 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
         { name: "Struktur Organisasi", href: "/struktur" },
       ],
     },
+    { name: "Asesmen", href: "/asesmen" },
     { name: "Kontak", href: "/kontak" },
   ]
 

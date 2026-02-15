@@ -29,6 +29,9 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `app/api/school/` - REST API for school data (classes, grades, schedules, subjects, users)
 - `app/dashboard/` - Admin dashboard
 - `app/dashboard/website/org-structure/` - Org structure management page
+- `app/dashboard/akademik/asesmen/` - Assessment management page
+- `app/asesmen/` - Public assessment page (select class, view subjects, gform links)
+- `app/api/assessments/` - REST API for assessments CRUD
 - `components/` - Reusable UI components (shadcn/ui based)
 - `lib/supabase/` - Supabase client configuration (client, browser, admin)
 - `lib/services/` - Supabase service classes for each entity
@@ -45,6 +48,7 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `page_settings` - Page settings (id='main', settings JSONB)
 - `org_structure` - Organizational structure (position_name, person_name, parent_id, sort_order)
 - `contact_messages` - Contact form messages (name, email, subject, message)
+- `assessments` - Online assessments (class_grade, class_major, subject_name, gform_link, day_name, sort_order)
 
 ### Database Migration (run in Supabase SQL Editor)
 ```sql
@@ -56,6 +60,17 @@ CREATE TABLE IF NOT EXISTS org_structure (
   position_name TEXT NOT NULL,
   person_name TEXT NOT NULL,
   parent_id UUID REFERENCES org_structure(id) ON DELETE SET NULL,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS assessments (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  class_grade VARCHAR(5) NOT NULL,
+  class_major VARCHAR(5) NOT NULL,
+  subject_name TEXT NOT NULL,
+  gform_link TEXT NOT NULL,
+  day_name VARCHAR(10) NOT NULL,
   sort_order INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

@@ -14,6 +14,8 @@ import {
   FileEdit,
   MessageSquare,
   Network,
+  BookOpen,
+  ClipboardList,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -52,6 +54,17 @@ const menuItems = [
         title: "Staff & Guru",
         url: "/dashboard/people/staff-teachers",
         icon: GraduationCap,
+      },
+    ],
+  },
+  {
+    title: "Akademik",
+    icon: BookOpen,
+    items: [
+      {
+        title: "Asesmen Online",
+        url: "/dashboard/akademik/asesmen",
+        icon: ClipboardList,
       },
     ],
   },
