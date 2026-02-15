@@ -156,10 +156,26 @@ function AnnouncementDetailPage() {
         )}
 
         <Card className="mb-8">
-          <CardHeader className="pb-6">
-            <div className="space-y-4">
-              <CardTitle className="text-3xl md:text-4xl font-bold leading-tight">{announcement.title}</CardTitle>
+          <CardHeader>
+            <CardTitle className="text-3xl md:text-4xl font-bold leading-tight">{announcement.title}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 pt-0">
+            <div
+              className="prose prose-lg max-w-none
+                prose-headings:text-foreground 
+                prose-p:text-foreground 
+                prose-strong:text-foreground
+                prose-a:text-primary hover:prose-a:text-primary/80
+                prose-blockquote:border-l-primary
+                prose-blockquote:text-muted-foreground
+                prose-code:text-primary
+                prose-pre:bg-muted
+                prose-img:rounded-lg
+                prose-img:shadow-md"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.content) }}
+            />
 
+            <div className="mt-8 pt-6 border-t space-y-3">
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <div className="flex items-center">
                   <CalendarDays className="h-4 w-4 mr-2" />
@@ -196,25 +212,6 @@ function AnnouncementDetailPage() {
                 </Button>
               </div>
             </div>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardContent className="p-8">
-            <div
-              className="prose prose-lg max-w-none
-                prose-headings:text-foreground 
-                prose-p:text-foreground 
-                prose-strong:text-foreground
-                prose-a:text-primary hover:prose-a:text-primary/80
-                prose-blockquote:border-l-primary
-                prose-blockquote:text-muted-foreground
-                prose-code:text-primary
-                prose-pre:bg-muted
-                prose-img:rounded-lg
-                prose-img:shadow-md"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(announcement.content) }}
-            />
           </CardContent>
         </Card>
 
