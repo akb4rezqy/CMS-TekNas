@@ -126,28 +126,28 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
       )}
 
       <div
-        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-[rgba(10,46,125,1)] z-50 lg:hidden
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-white z-50 lg:hidden shadow-2xl
           transform transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]
           ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-5 pb-6 border-b border-white/10">
+          <div className="flex items-center justify-between p-5 pb-6 border-b border-gray-100">
             <div className="flex items-center gap-3">
               {logoUrl ? (
-                <Image src={logoUrl} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg bg-white/10 p-1" />
+                <Image src={logoUrl} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg bg-gray-50 p-1" />
               ) : (
-                <div className="h-10 w-10 rounded-lg bg-white/15 flex items-center justify-center">
+                <div className="h-10 w-10 rounded-lg bg-[rgba(10,46,125,1)] flex items-center justify-center">
                   <span className="text-white font-bold text-sm">SMK</span>
                 </div>
               )}
               <div>
-                <p className="text-white font-bold text-sm leading-tight">SMK Teknologi</p>
-                <p className="text-white/60 text-xs">Nasional</p>
+                <p className="text-gray-900 font-bold text-sm leading-tight">SMK Teknologi</p>
+                <p className="text-gray-400 text-xs">Nasional</p>
               </div>
             </div>
             <button
               onClick={toggleMenu}
-              className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-200 active:scale-90"
+              className="p-2 rounded-xl bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-all duration-200 active:scale-90"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -172,9 +172,9 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
                         <button
                           onClick={() => toggleGroup(item.name)}
                           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200
-                            ${isExpanded ? "bg-white/15 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
+                            ${isExpanded ? "bg-blue-50 text-[rgba(10,46,125,1)]" : "text-gray-700 hover:bg-gray-50"}`}
                         >
-                          <div className={`p-2 rounded-lg transition-colors duration-200 ${isExpanded ? "bg-white/20" : "bg-white/10"}`}>
+                          <div className={`p-2 rounded-lg transition-colors duration-200 ${isExpanded ? "bg-[rgba(10,46,125,1)] text-white" : "bg-gray-100 text-gray-500"}`}>
                             <Icon className="h-4 w-4" />
                           </div>
                           <span className="flex-1 font-medium text-[15px]">{item.name}</span>
@@ -185,7 +185,7 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
                             isExpanded ? "max-h-60 opacity-100 mt-1" : "max-h-0 opacity-0"
                           }`}
                         >
-                          <div className="ml-4 pl-4 border-l-2 border-white/15 space-y-1">
+                          <div className="ml-4 pl-4 border-l-2 border-blue-100 space-y-1">
                             {item.subItems!.map((subItem) => {
                               const SubIcon = subItem.icon
                               return (
@@ -193,7 +193,7 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
                                   key={subItem.name}
                                   href={subItem.href}
                                   onClick={toggleMenu}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:text-[rgba(10,46,125,1)] hover:bg-blue-50 transition-all duration-200"
                                 >
                                   <SubIcon className="h-4 w-4" />
                                   <span className="text-sm">{subItem.name}</span>
@@ -207,9 +207,9 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
                       <Link
                         href={item.href!}
                         onClick={toggleMenu}
-                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition-all duration-200"
                       >
-                        <div className="p-2 rounded-lg bg-white/10">
+                        <div className="p-2 rounded-lg bg-gray-100 text-gray-500">
                           <Icon className="h-4 w-4" />
                         </div>
                         <span className="font-medium text-[15px]">{item.name}</span>
@@ -221,14 +221,14 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
             </div>
           </nav>
 
-          <div className="p-5 pt-3 border-t border-white/10">
-            <div className="bg-white/10 rounded-xl p-4">
-              <p className="text-white/90 text-sm font-medium mb-1">Hubungi Kami</p>
-              <p className="text-white/50 text-xs leading-relaxed">Punya pertanyaan? Jangan ragu untuk menghubungi kami.</p>
+          <div className="p-5 pt-3 border-t border-gray-100">
+            <div className="bg-gray-50 rounded-xl p-4">
+              <p className="text-gray-900 text-sm font-medium mb-1">Hubungi Kami</p>
+              <p className="text-gray-400 text-xs leading-relaxed">Punya pertanyaan? Jangan ragu untuk menghubungi kami.</p>
               <Link
                 href="/kontak"
                 onClick={toggleMenu}
-                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white text-[rgba(10,46,125,1)] text-sm font-semibold hover:bg-white/90 transition-all duration-200 active:scale-95"
+                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[rgba(10,46,125,1)] text-white text-sm font-semibold hover:bg-[rgba(10,46,125,0.9)] transition-all duration-200 active:scale-95"
               >
                 <Phone className="h-4 w-4" />
                 Hubungi Sekarang
