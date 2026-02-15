@@ -3,18 +3,16 @@
 import type React from "react"
 import { useState, createContext, useContext, useCallback, useEffect, useRef } from "react"
 import Link from "next/link"
-import { X } from "lucide-react"
+import Image from "next/image"
+import { X, Home, Newspaper, ImageIcon, Users, Trophy, Network, Phone, ChevronDown } from "lucide-react"
 
-// Definisikan tipe konteks
 interface MobileMenuContextType {
   isMenuOpen: boolean
   toggleMenu: () => void
 }
 
-// Buat konteks
 const MobileMenuContext = createContext<MobileMenuContextType | undefined>(undefined)
 
-// Custom hook untuk menggunakan konteks
 export function useMobileMenu() {
   const context = useContext(MobileMenuContext)
   if (context === undefined) {
@@ -25,17 +23,34 @@ export function useMobileMenu() {
 
 export function MobileMenuProvider({ children }: { children: React.ReactNode }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null)
+  const [logoUrl, setLogoUrl] = useState("")
   const scrollYRef = useRef(0)
 
   const toggleMenu = useCallback(() => {
     setIsMenuOpen((prev) => !prev)
+    setExpandedGroup(null)
+  }, [])
+
+  const toggleGroup = useCallback((name: string) => {
+    setExpandedGroup((prev) => (prev === name ? null : name))
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/page-settings")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data?.logoImage) {
+          setLogoUrl(res.data.logoImage)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   useEffect(() => {
     if (typeof window === "undefined") return
 
     if (isMenuOpen) {
-      // Simpan posisi saat ini lalu kunci scroll
       scrollYRef.current = window.scrollY
       document.documentElement.classList.add("overflow-hidden")
       document.body.classList.add("overflow-hidden", "touch-none", "overscroll-none")
@@ -45,7 +60,6 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
       document.body.style.right = "0"
       document.body.style.width = "100%"
     } else {
-      // Pulihkan
       document.documentElement.classList.remove("overflow-hidden")
       document.body.classList.remove("overflow-hidden", "touch-none", "overscroll-none")
       const y = Math.abs(Number.parseInt(document.body.style.top || "0", 10)) || 0
@@ -57,7 +71,6 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
       if (y) window.scrollTo(0, y)
     }
 
-    // Cleanup jika komponen unmount saat menu terbuka
     return () => {
       document.documentElement.classList.remove("overflow-hidden")
       document.body.classList.remove("overflow-hidden", "touch-none", "overscroll-none")
@@ -72,94 +85,158 @@ export function MobileMenuProvider({ children }: { children: React.ReactNode }) 
   }, [isMenuOpen])
 
   const navItems = [
-    { name: "Beranda", href: "/" },
+    { name: "Beranda", href: "/", icon: Home },
     {
       name: "Media",
+      icon: Newspaper,
       subItems: [
-        { name: "Pengumuman", href: "/pengumuman" },
-        { name: "Galeri", href: "/galeri" },
+        { name: "Pengumuman", href: "/pengumuman", icon: Newspaper },
+        { name: "Galeri", href: "/galeri", icon: ImageIcon },
       ],
     },
     {
       name: "Profil",
+      icon: Users,
       subItems: [
-        { name: "Data Guru & Staf", href: "/guru-staf" },
-        { name: "Ekstrakurikuler", href: "/ekstrakurikuler" },
-        { name: "Struktur Organisasi", href: "/struktur" },
+        { name: "Data Guru & Staf", href: "/guru-staf", icon: Users },
+        { name: "Ekstrakurikuler", href: "/ekstrakurikuler", icon: Trophy },
+        { name: "Struktur Organisasi", href: "/struktur", icon: Network },
       ],
     },
-    { name: "Kontak", href: "/kontak" },
+    { name: "Kontak", href: "/kontak", icon: Phone },
   ]
 
   return (
     <>
-      {/* Wrapper untuk semua konten (Header, main, Footer) yang akan di-blur */}
       <div
-        className={`flex flex-col min-h-screen transition-all duration-300 ease-in-out
-          ${isMenuOpen ? "filter blur-sm pointer-events-none" : ""}`}
+        className={`flex flex-col min-h-screen transition-all duration-500 ease-in-out
+          ${isMenuOpen ? "scale-[0.92] rounded-2xl overflow-hidden opacity-60" : "scale-100"}`}
       >
-        {/* MobileMenuContext.Provider sekarang membungkus children */}
         <MobileMenuContext.Provider value={{ isMenuOpen, toggleMenu }}>
-          {children} {/* Ini akan merender Header, main, dan Footer */}
+          {children}
         </MobileMenuContext.Provider>
       </div>
 
-      {/* Menu Mobile Mengambang (di luar wrapper blur) */}
-      <div
-        className={`fixed top-0 right-0 h-full w-full max-w-xs bg-background shadow-lg py-2 z-50 border-l border-border lg:hidden
-          transform transition-transform duration-300 ease-in-out
-          ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
-      >
-        <div className="flex justify-end p-4 pb-0">
-          <button
-            onClick={toggleMenu}
-            className="p-2 rounded-md text-foreground hover:bg-muted focus:outline-none focus:ring-2 focus:ring-ring"
-            aria-label="Close menu"
-          >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-        <div className="flex flex-col p-4 pt-0">
-          <nav className="flex flex-col gap-4">
-            {navItems.map((item) =>
-              item.subItems ? (
-                <div key={item.name} className="flex flex-col">
-                  <span className="text-lg font-semibold text-foreground mb-2">{item.name}</span>
-                  <div className="flex flex-col pl-4 gap-2">
-                    {item.subItems.map((subItem) => (
-                      <Link
-                        key={subItem.name}
-                        href={subItem.href}
-                        className="text-base text-muted-foreground hover:text-foreground"
-                        onClick={toggleMenu}
-                      >
-                        {subItem.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-lg font-semibold text-foreground"
-                  onClick={toggleMenu}
-                >
-                  {item.name}
-                </Link>
-              ),
-            )}
-          </nav>
-        </div>
-      </div>
-      {/* Overlay saat menu mobile terbuka */}
       {isMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
           onClick={toggleMenu}
           aria-hidden="true"
-        ></div>
+        />
       )}
+
+      <div
+        className={`fixed top-0 right-0 h-full w-[85%] max-w-sm bg-[rgba(10,46,125,1)] z-50 lg:hidden
+          transform transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]
+          ${isMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between p-5 pb-6 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              {logoUrl ? (
+                <Image src={logoUrl} alt="Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-lg bg-white/10 p-1" />
+              ) : (
+                <div className="h-10 w-10 rounded-lg bg-white/15 flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">SMK</span>
+                </div>
+              )}
+              <div>
+                <p className="text-white font-bold text-sm leading-tight">SMK Teknologi</p>
+                <p className="text-white/60 text-xs">Nasional</p>
+              </div>
+            </div>
+            <button
+              onClick={toggleMenu}
+              className="p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-200 active:scale-90"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto py-4 px-3">
+            <div className="space-y-1">
+              {navItems.map((item, index) => {
+                const Icon = item.icon
+                const isExpanded = expandedGroup === item.name
+                const hasSubItems = !!item.subItems
+
+                return (
+                  <div
+                    key={item.name}
+                    className="transition-all duration-300"
+                    style={{ transitionDelay: isMenuOpen ? `${index * 60}ms` : "0ms" }}
+                  >
+                    {hasSubItems ? (
+                      <>
+                        <button
+                          onClick={() => toggleGroup(item.name)}
+                          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all duration-200
+                            ${isExpanded ? "bg-white/15 text-white" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
+                        >
+                          <div className={`p-2 rounded-lg transition-colors duration-200 ${isExpanded ? "bg-white/20" : "bg-white/10"}`}>
+                            <Icon className="h-4 w-4" />
+                          </div>
+                          <span className="flex-1 font-medium text-[15px]">{item.name}</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`} />
+                        </button>
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                            isExpanded ? "max-h-60 opacity-100 mt-1" : "max-h-0 opacity-0"
+                          }`}
+                        >
+                          <div className="ml-4 pl-4 border-l-2 border-white/15 space-y-1">
+                            {item.subItems!.map((subItem) => {
+                              const SubIcon = subItem.icon
+                              return (
+                                <Link
+                                  key={subItem.name}
+                                  href={subItem.href}
+                                  onClick={toggleMenu}
+                                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+                                >
+                                  <SubIcon className="h-4 w-4" />
+                                  <span className="text-sm">{subItem.name}</span>
+                                </Link>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href!}
+                        onClick={toggleMenu}
+                        className="flex items-center gap-3 px-4 py-3 rounded-xl text-white/80 hover:bg-white/10 hover:text-white transition-all duration-200"
+                      >
+                        <div className="p-2 rounded-lg bg-white/10">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <span className="font-medium text-[15px]">{item.name}</span>
+                      </Link>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </nav>
+
+          <div className="p-5 pt-3 border-t border-white/10">
+            <div className="bg-white/10 rounded-xl p-4">
+              <p className="text-white/90 text-sm font-medium mb-1">Hubungi Kami</p>
+              <p className="text-white/50 text-xs leading-relaxed">Punya pertanyaan? Jangan ragu untuk menghubungi kami.</p>
+              <Link
+                href="/kontak"
+                onClick={toggleMenu}
+                className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-white text-[rgba(10,46,125,1)] text-sm font-semibold hover:bg-white/90 transition-all duration-200 active:scale-95"
+              >
+                <Phone className="h-4 w-4" />
+                Hubungi Sekarang
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   )
 }
