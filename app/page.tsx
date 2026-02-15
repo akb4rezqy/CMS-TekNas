@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { withLayout } from "@/components/hoc/with-layout"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
-import { CalendarDays, ArrowRight, ImageIcon } from "lucide-react"
+import { CalendarDays, ArrowRight } from "lucide-react"
 
 interface PageSettings {
   heroTitle: string
@@ -198,44 +198,30 @@ function HomePage() {
                 </p>
               </div>
             </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {latestAnnouncements.map((ann) => (
                 <Link key={ann.id} href={`/pengumuman/${ann.id}`}>
-                  <Card className="h-full overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
-                    <div className="relative h-48 bg-muted overflow-hidden">
-                      {ann.image_url ? (
-                        <Image
-                          src={ann.image_url}
-                          fill
-                          alt={ann.title}
-                          className="object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                          <ImageIcon className="h-12 w-12 text-primary/30" />
-                        </div>
-                      )}
-                    </div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="line-clamp-2 text-lg leading-tight group-hover:text-primary transition-colors">
+                  <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
+                    <CardContent className="p-4">
+                      <CardTitle className="line-clamp-1 text-base leading-tight group-hover:text-primary transition-colors mb-2">
                         {ann.title}
                       </CardTitle>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <CalendarDays className="h-4 w-4 mr-2" />
-                        {new Date(ann.created_at).toLocaleDateString("id-ID", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {ann.content.replace(/<[^>]*>/g, "").substring(0, 120)}...
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        {ann.content.replace(/<[^>]*>/g, "").substring(0, 100)}
                       </p>
-                      <div className="flex items-center text-primary text-sm font-medium mt-3 group-hover:gap-2 transition-all">
-                        Baca Selengkapnya
-                        <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-xs text-muted-foreground">
+                          <CalendarDays className="h-3 w-3 mr-1" />
+                          {new Date(ann.created_at).toLocaleDateString("id-ID", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })}
+                        </div>
+                        <div className="flex items-center text-primary text-xs font-medium group-hover:gap-1 transition-all">
+                          Selengkapnya
+                          <ArrowRight className="h-3 w-3 ml-1 group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
