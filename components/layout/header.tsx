@@ -66,7 +66,7 @@ export function Header() {
       </Link>
 
       {/* Desktop Navigation (Muncul di layar besar) */}
-      <nav className="hidden lg:flex gap-6 ml-auto">
+      <nav className="hidden lg:flex items-center gap-6 ml-auto">
         {navItems.map((item) =>
           item.subItems ? (
             <div key={item.name} className="relative group">
