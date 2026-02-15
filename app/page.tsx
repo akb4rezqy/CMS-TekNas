@@ -226,15 +226,15 @@ function HomePage() {
       {latestAnnouncements.length > 0 && (
         <section
           ref={ctaAnimation.ref}
-          className={`w-full py-12 md:py-24 lg:py-32 bg-muted/50 transition-all duration-1000 ${
+          className={`w-full py-12 md:py-24 lg:py-32 bg-[rgba(10,46,125,1)] transition-all duration-1000 ${
             ctaAnimation.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">Pengumuman Terbaru</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl lg:text-base xl:text-xl">
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-white">Pengumuman Terbaru</h2>
+                <p className="max-w-[900px] text-white/80 md:text-xl lg:text-base xl:text-xl">
                   Informasi dan berita penting terbaru dari SMK Teknologi Nasional.
                 </p>
               </div>
@@ -272,7 +272,7 @@ function HomePage() {
             <div className="flex justify-center mt-8">
               <Link
                 href="/pengumuman"
-                className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+                className="inline-flex h-10 items-center justify-center rounded-md border border-white/30 bg-white/10 text-white px-8 text-sm font-medium shadow-sm transition-colors hover:bg-white/20"
               >
                 Lihat Semua Pengumuman
               </Link>
