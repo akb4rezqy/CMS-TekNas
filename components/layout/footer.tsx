@@ -28,10 +28,10 @@ export function Footer() {
             Membentuk generasi teknologi unggul melalui pendidikan vokasi yang inovatif dan berkualitas tinggi.
           </p>
           <div className="flex gap-4 mt-4">
-            <Link href="#" aria-label="YouTube">
+            <Link href="https://youtube.com/@smkteknasbks" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
               <Youtube className="h-6 w-6 text-muted-foreground hover:text-primary transition-colors" />
             </Link>
-            <Link href="#" aria-label="Instagram">
+            <Link href="https://www.instagram.com/smkteknasbks" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <Instagram className="h-6 w-6 text-muted-foreground hover:text-primary transition-colors" />
             </Link>
           </div>
