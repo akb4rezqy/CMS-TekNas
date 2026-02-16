@@ -11,6 +11,10 @@ const redHatDisplay = Red_Hat_Display({
 export const metadata: Metadata = {
   title: "SMK Teknologi Nasional Kota Bekasi",
   description: "Website resmi SMK Teknologi Nasional Kota Bekasi - Pendidikan vokasi teknologi yang inovatif dan inspiratif",
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
+  },
 }
 
 export default function RootLayout({
