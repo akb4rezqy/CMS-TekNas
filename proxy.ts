@@ -30,7 +30,7 @@ async function verifySessionToken(token: string, secret: string): Promise<boolea
   return true
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const session = request.cookies.get("admin_session")
   const secret = process.env.ADMIN_PASSWORD || "fallback-secret-key"
 
