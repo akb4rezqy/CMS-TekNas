@@ -4,6 +4,7 @@
 School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailwind CSS, and Supabase as the backend database.
 
 ## Recent Changes
+- 2026-02-16: Added custom web analytics system using Supabase page_views table. PageTracker component tracks all public page visits (excludes /dashboard and /login). Dashboard redesigned with analytics: total views, unique visitors, today's views, device stats, daily traffic chart (recharts), popular pages, and recent activity. Added period filter (today/7d/30d). Added Cloudflare Turnstile CAPTCHA on login. Principal photo upload in page settings. Admin session reduced to 5 hours.
 - 2026-02-15: Added image support for announcements (upload in admin, display in public pages). 3 latest announcements shown on homepage and in announcement detail pages. Added profile photo & gender selection for staff/teachers with default male/female avatars. Added organizational structure management (admin CRUD + sidebar menu). Added delete confirmation dialog for messages. Database migration needed for new columns.
 - 2026-02-12: Added hero background image and logo upload in page settings admin. Header/Footer dynamically show uploaded logo. Homepage hero uses uploaded background or gradient fallback. Added contact messages inbox at /dashboard/messages with view/delete. Added DELETE endpoint to /api/contact. Dashboard sidebar now includes "Komunikasi > Pesan Masuk" menu.
 - 2026-02-11: Fixed page settings - admin panel now matches public page content (SMK TEKNOLOGI NASIONAL), with Supabase persistence via page_settings table. Dashboard stats now show real data from Supabase. Added /api/page-settings and /api/dashboard-stats API routes. Public homepage reads settings dynamically.
@@ -32,6 +33,8 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `app/dashboard/akademik/asesmen/` - Assessment management page
 - `app/asesmen/` - Public assessment page (select class, view subjects, gform links)
 - `app/api/assessments/` - REST API for assessments CRUD
+- `app/api/analytics/` - Web analytics API (POST track, GET stats)
+- `components/analytics/page-tracker.tsx` - Client-side page view tracker
 - `components/` - Reusable UI components (shadcn/ui based)
 - `lib/supabase/` - Supabase client configuration (client, browser, admin)
 - `lib/services/` - Supabase service classes for each entity
@@ -49,6 +52,7 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `org_structure` - Organizational structure (position_name, person_name, parent_id, sort_order)
 - `contact_messages` - Contact form messages (name, email, subject, message)
 - `assessments` - Online assessments (class_grade, class_major, subject_name, gform_link, day_name, sort_order)
+- `page_views` - Web analytics tracking (page, referrer, ip_hash, device, user_agent, visited_at)
 
 ### Database Migration (run in Supabase SQL Editor)
 ```sql
@@ -75,6 +79,17 @@ CREATE TABLE IF NOT EXISTS assessments (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS page_views (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  page TEXT NOT NULL,
+  referrer TEXT,
+  ip_hash TEXT,
+  device VARCHAR(10) DEFAULT 'desktop',
+  user_agent TEXT,
+  visited_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_page_views_visited_at ON page_views(visited_at);
+CREATE INDEX IF NOT EXISTS idx_page_views_page ON page_views(page);
 ```
 
 ### Environment Variables Required

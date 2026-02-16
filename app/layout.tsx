@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Red_Hat_Display } from "next/font/google"
 import "./globals.css"
+import { PageTracker } from "@/components/analytics/page-tracker"
 
 const redHatDisplay = Red_Hat_Display({
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
     <html lang="en" className={redHatDisplay.variable}>
       <body className={redHatDisplay.className}>
         {children}
+        <PageTracker />
         <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "8067b5659f634c2189c64705c4625f31"}'></script>
       </body>
     </html>
