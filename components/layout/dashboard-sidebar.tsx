@@ -17,6 +17,7 @@ import {
   Network,
   BookOpen,
   ClipboardList,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -159,6 +160,18 @@ export function DashboardSidebar({ onNavigate }: DashboardSidebarProps) {
           </div>
         ))}
       </nav>
+      <div className="p-3 border-t">
+        <button
+          onClick={async () => {
+            await fetch("/api/auth/logout", { method: "POST" })
+            window.location.href = "/login"
+          }}
+          className="flex items-center gap-2 w-full px-3 py-2 text-sm text-muted-foreground hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
+        >
+          <LogOut className="w-4 h-4" />
+          Keluar
+        </button>
+      </div>
     </div>
   )
 }
