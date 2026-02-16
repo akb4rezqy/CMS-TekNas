@@ -85,7 +85,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">Selamat datang di Admin Dashboard SMK TEKNOLOGI NASIONAL</p>
         </div>
-        <div className="flex gap-1 bg-muted rounded-lg p-1">
+        <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
           {[
             { label: "Hari ini", value: "today" },
             { label: "7 Hari", value: "7d" },
@@ -95,7 +95,7 @@ export default function DashboardPage() {
               key={p.value}
               onClick={() => setPeriod(p.value)}
               className={`px-3 py-1.5 text-sm rounded-md transition-all ${
-                period === p.value ? "bg-white shadow-sm font-medium" : "text-muted-foreground hover:text-foreground"
+                period === p.value ? "bg-white shadow-sm font-medium text-gray-900" : "text-gray-500 hover:text-gray-700"
               }`}
             >
               {p.label}
