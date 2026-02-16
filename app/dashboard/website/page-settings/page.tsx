@@ -19,6 +19,7 @@ interface PageSettings {
   heroBackgroundImage: string
   principalName: string
   principalTitle: string
+  principalPhoto: string
   principalWelcomeText: string
   principalMessage1: string
   principalMessage2: string
@@ -37,6 +38,7 @@ const DEFAULT_SETTINGS: PageSettings = {
   heroBackgroundImage: "",
   principalName: "Bapak Budi Santoso, S.Pd.",
   principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
+  principalPhoto: "",
   principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
   principalMessage1:
     "Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi SMK TEKNOLOGI NASIONAL. Kami berkomitmen untuk menyediakan lingkungan belajar teknologi yang inspiratif dan kondusif, di mana setiap siswa dapat mengembangkan potensi teknis, inovasi, dan keterampilan industri 4.0.",
@@ -348,6 +350,13 @@ export default function PageSettingsPage() {
             <CardTitle>Sambutan Kepala Sekolah</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <ImageUploadField
+              label="Foto Kepala Sekolah"
+              description="Upload foto kepala sekolah. Disarankan foto formal berukuran 1:1 (persegi)."
+              value={settings.principalPhoto}
+              onChange={(url) => setSettings((prev) => ({ ...prev, principalPhoto: url }))}
+            />
+            <Separator />
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="principalName">Nama Kepala Sekolah</Label>

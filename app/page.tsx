@@ -17,6 +17,7 @@ interface PageSettings {
   logoImage: string
   principalName: string
   principalTitle: string
+  principalPhoto: string
   principalWelcomeText: string
   principalMessage1: string
   principalMessage2: string
@@ -47,6 +48,7 @@ const DEFAULTS: PageSettings = {
   logoImage: "",
   principalName: "Bapak Budi Santoso, S.Pd.",
   principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
+  principalPhoto: "",
   principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
   principalMessage1:
     "Dengan rasa syukur dan bangga, saya menyambut Anda di website resmi SMK TEKNOLOGI NASIONAL. Kami berkomitmen untuk menyediakan lingkungan belajar teknologi yang inspiratif dan kondusif, di mana setiap siswa dapat mengembangkan potensi teknis, inovasi, dan keterampilan industri 4.0.",
@@ -164,7 +166,7 @@ function HomePage() {
           <div className="mx-auto max-w-4xl py-12 grid md:grid-cols-2 gap-8 items-center">
             <div className="flex justify-center">
               <Image
-                src="/placeholder.svg?height=300&width=300&text=Kepala+Sekolah"
+                src={s.principalPhoto || "/default-male.jpg"}
                 width={300}
                 height={300}
                 alt="Kepala Sekolah"
