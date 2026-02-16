@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import {
   BarChart3,
@@ -108,9 +109,7 @@ export function DashboardSidebar({ onNavigate }: DashboardSidebarProps) {
     <div className="flex flex-col h-full">
       <div className="p-6">
         <Link href="/dashboard" className="flex items-center space-x-2" onClick={onNavigate}>
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">SMK</span>
-          </div>
+          <Image src="/logo-sekolah.png" alt="Logo" width={32} height={32} className="w-8 h-8 object-contain" />
           <span className="font-bold text-lg">Admin Dashboard</span>
         </Link>
       </div>
