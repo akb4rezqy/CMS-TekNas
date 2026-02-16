@@ -24,7 +24,7 @@ async function verifySessionToken(token: string, secret: string): Promise<boolea
   if (signature !== expectedSignature) return false
 
   const timestamp = parseInt(parts[0], 10)
-  const maxAge = 7 * 24 * 60 * 60 * 1000
+  const maxAge = 5 * 60 * 60 * 1000
   if (Date.now() - timestamp > maxAge) return false
 
   return true
