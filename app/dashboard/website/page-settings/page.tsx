@@ -17,7 +17,6 @@ interface PageSettings {
   heroPrimaryButtonText: string
   heroSecondaryButtonText: string
   heroBackgroundImage: string
-  logoImage: string
   principalName: string
   principalTitle: string
   principalWelcomeText: string
@@ -25,9 +24,6 @@ interface PageSettings {
   principalMessage2: string
   schoolVision: string
   schoolMissions: string[]
-  ctaTitle: string
-  ctaSubtitle: string
-  ctaButtonText: string
   siteTitle: string
   siteDescription: string
 }
@@ -39,7 +35,6 @@ const DEFAULT_SETTINGS: PageSettings = {
   heroPrimaryButtonText: "Daftar Sekarang",
   heroSecondaryButtonText: "Jelajahi Program",
   heroBackgroundImage: "",
-  logoImage: "",
   principalName: "Bapak Budi Santoso, S.Pd.",
   principalTitle: "Kepala SMK TEKNOLOGI NASIONAL",
   principalWelcomeText: "Assalamu'alaikum Warahmatullahi Wabarakatuh.",
@@ -56,10 +51,6 @@ const DEFAULT_SETTINGS: PageSettings = {
     "Menciptakan lingkungan belajar yang aman, nyaman, dan berbasis teknologi terkini.",
     "Membangun kemitraan strategis dengan industri, orang tua, dan masyarakat.",
   ],
-  ctaTitle: "Siap Bergabung dengan Keluarga SMK TEKNOLOGI NASIONAL?",
-  ctaSubtitle:
-    "Daftarkan putra-putri Anda sekarang dan berikan mereka pendidikan teknologi vokasi terbaik untuk masa depan yang cerah.",
-  ctaButtonText: "Daftar Sekarang",
   siteTitle: "SMK TEKNOLOGI NASIONAL",
   siteDescription: "Sekolah menengah kejuruan teknologi terdepan yang menghasilkan generasi unggul untuk industri 4.0",
 }
@@ -297,13 +288,6 @@ export default function PageSettingsPage() {
                 />
               </div>
             </div>
-            <Separator />
-            <ImageUploadField
-              label="Logo Sekolah"
-              description="Logo akan ditampilkan di header dan footer website. Disarankan ukuran 200x200 px (format PNG transparan)."
-              value={settings.logoImage}
-              onChange={(url) => setSettings((prev) => ({ ...prev, logoImage: url }))}
-            />
           </CardContent>
         </Card>
 
@@ -461,39 +445,6 @@ export default function PageSettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Call to Action</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="ctaTitle">Judul CTA</Label>
-              <Textarea
-                id="ctaTitle"
-                value={settings.ctaTitle}
-                onChange={(e) => setSettings((prev) => ({ ...prev, ctaTitle: e.target.value }))}
-                rows={2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ctaSubtitle">Subjudul CTA</Label>
-              <Textarea
-                id="ctaSubtitle"
-                value={settings.ctaSubtitle}
-                onChange={(e) => setSettings((prev) => ({ ...prev, ctaSubtitle: e.target.value }))}
-                rows={2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="ctaButton">Teks Tombol CTA</Label>
-              <Input
-                id="ctaButton"
-                value={settings.ctaButtonText}
-                onChange={(e) => setSettings((prev) => ({ ...prev, ctaButtonText: e.target.value }))}
-              />
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="sticky bottom-6 flex justify-end">
