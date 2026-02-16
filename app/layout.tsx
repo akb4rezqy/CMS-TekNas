@@ -26,6 +26,7 @@ export default function RootLayout({
     <html lang="en" className={redHatDisplay.variable}>
       <body className={redHatDisplay.className}>
         {children}
+        <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "8067b5659f634c2189c64705c4625f31"}'></script>
       </body>
     </html>
   )
