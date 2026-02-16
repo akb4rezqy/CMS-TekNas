@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import { createSessionToken } from "@/lib/auth"
+import { getServiceSupabase } from "@/lib/supabase/admin"
+import { createHash } from "crypto"
+
+function hashPassword(password: string): string {
+  return createHash("sha256").update(password).digest("hex")
+}
 
 async function verifyTurnstile(token: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY
@@ -23,13 +29,10 @@ export async function POST(request: NextRequest) {
   try {
     const { username, password, turnstileToken } = await request.json()
 
-    const adminUsername = process.env.ADMIN_USERNAME
-    const adminPassword = process.env.ADMIN_PASSWORD
-
-    if (!adminUsername || !adminPassword) {
+    if (!username || !password) {
       return NextResponse.json(
-        { success: false, error: "Kredensial admin belum dikonfigurasi" },
-        { status: 500 }
+        { success: false, error: "Username dan password wajib diisi" },
+        { status: 400 }
       )
     }
 
@@ -50,8 +53,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (username === adminUsername && password === adminPassword) {
-      const sessionToken = createSessionToken()
+    const supabase = getServiceSupabase()
+
+    const { data: dbUser } = await supabase
+      .from("admin_users")
+      .select("id, username, password_hash, role, display_name")
+      .eq("username", username.toLowerCase())
+      .single() as { data: any }
+
+    if (dbUser && dbUser.password_hash === hashPassword(password)) {
+      const sessionToken = createSessionToken(dbUser.id, dbUser.role)
       const cookieStore = await cookies()
       cookieStore.set("admin_session", sessionToken, {
         httpOnly: true,
@@ -61,7 +72,24 @@ export async function POST(request: NextRequest) {
         maxAge: 60 * 60 * 5,
       })
 
-      return NextResponse.json({ success: true })
+      return NextResponse.json({ success: true, user: { username: dbUser.username, role: dbUser.role, display_name: dbUser.display_name } })
+    }
+
+    const adminUsername = process.env.ADMIN_USERNAME
+    const adminPassword = process.env.ADMIN_PASSWORD
+
+    if (adminUsername && adminPassword && username === adminUsername && password === adminPassword) {
+      const sessionToken = createSessionToken("env-admin", "admin")
+      const cookieStore = await cookies()
+      cookieStore.set("admin_session", sessionToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 5,
+      })
+
+      return NextResponse.json({ success: true, user: { username: adminUsername, role: "admin", display_name: "Administrator" } })
     }
 
     return NextResponse.json(

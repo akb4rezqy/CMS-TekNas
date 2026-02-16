@@ -18,6 +18,7 @@ import {
   BookOpen,
   ClipboardList,
   LogOut,
+  UserCog,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -94,6 +95,17 @@ const menuItems = [
         title: "Struktur Organisasi",
         url: "/dashboard/website/org-structure",
         icon: Network,
+      },
+    ],
+  },
+  {
+    title: "Pengaturan",
+    icon: Settings,
+    items: [
+      {
+        title: "Manajemen Akun",
+        url: "/dashboard/settings/accounts",
+        icon: UserCog,
       },
     ],
   },

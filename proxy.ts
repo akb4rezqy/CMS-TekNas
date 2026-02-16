@@ -3,10 +3,10 @@ import { NextRequest, NextResponse } from "next/server"
 async function verifySessionToken(token: string, secret: string): Promise<boolean> {
   if (!token) return false
   const parts = token.split(".")
-  if (parts.length !== 3) return false
+  if (parts.length !== 5) return false
 
-  const payload = `${parts[0]}.${parts[1]}`
-  const signature = parts[2]
+  const payload = `${parts[0]}.${parts[1]}.${parts[2]}.${parts[3]}`
+  const signature = parts[4]
 
   const encoder = new TextEncoder()
   const key = await crypto.subtle.importKey(
