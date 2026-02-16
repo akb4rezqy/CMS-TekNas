@@ -1,9 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Image from "next/image"
 import { Loader2, Lock, User, Eye, EyeOff } from "lucide-react"
+import Script from "next/script"
+
+declare global {
+  interface Window {
+    turnstile: {
+      render: (container: string | HTMLElement, options: Record<string, unknown>) => string
+      reset: (widgetId: string) => void
+      remove: (widgetId: string) => void
+    }
+    onTurnstileLoad: () => void
+  }
+}
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
@@ -11,19 +23,62 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [turnstileToken, setTurnstileToken] = useState("")
+  const [turnstileReady, setTurnstileReady] = useState(false)
+  const turnstileRef = useRef<HTMLDivElement>(null)
+  const widgetIdRef = useRef<string>("")
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
+
+  useEffect(() => {
+    if (!siteKey) return
+
+    window.onTurnstileLoad = () => {
+      setTurnstileReady(true)
+    }
+
+    return () => {
+      if (widgetIdRef.current && window.turnstile) {
+        try { window.turnstile.remove(widgetIdRef.current) } catch {}
+      }
+    }
+  }, [siteKey])
+
+  useEffect(() => {
+    if (!turnstileReady || !turnstileRef.current || !siteKey) return
+
+    if (widgetIdRef.current) {
+      try { window.turnstile.remove(widgetIdRef.current) } catch {}
+    }
+
+    widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+      sitekey: siteKey,
+      callback: (token: string) => setTurnstileToken(token),
+      "expired-callback": () => setTurnstileToken(""),
+      "error-callback": () => setTurnstileToken(""),
+      theme: "light",
+      size: "flexible",
+    })
+  }, [turnstileReady, siteKey])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    if (siteKey && !turnstileToken) {
+      setError("Mohon selesaikan verifikasi CAPTCHA")
+      return
+    }
+
     setLoading(true)
 
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, turnstileToken }),
       })
       const data = await res.json()
 
@@ -33,6 +88,10 @@ export default function LoginPage() {
         router.refresh()
       } else {
         setError(data.error || "Login gagal")
+        if (widgetIdRef.current && window.turnstile) {
+          window.turnstile.reset(widgetIdRef.current)
+          setTurnstileToken("")
+        }
       }
     } catch {
       setError("Terjadi kesalahan, coba lagi")
@@ -43,6 +102,12 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[rgba(10,46,125,1)] via-[rgba(15,55,140,1)] to-[rgba(8,35,100,1)] flex items-center justify-center p-4">
+      {siteKey && (
+        <Script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad"
+          strategy="afterInteractive"
+        />
+      )}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
@@ -84,6 +149,7 @@ export default function LoginPage() {
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Masukkan username"
                   required
+                  autoComplete="username"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(10,46,125,0.3)] focus:border-[rgba(10,46,125,1)] transition-all"
                 />
               </div>
@@ -102,6 +168,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Masukkan password"
                   required
+                  autoComplete="current-password"
                   className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[rgba(10,46,125,0.3)] focus:border-[rgba(10,46,125,1)] transition-all"
                 />
                 <button
@@ -114,9 +181,15 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {siteKey && (
+              <div className="flex justify-center">
+                <div ref={turnstileRef} />
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading || !username || !password}
+              disabled={loading || !username || !password || (!!siteKey && !turnstileToken)}
               className="w-full py-3 bg-[rgba(10,46,125,1)] text-white font-medium rounded-xl hover:bg-[rgba(10,46,125,0.9)] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98] flex items-center justify-center gap-2"
             >
               {loading ? (
