@@ -2,6 +2,7 @@ import { getServiceSupabase } from "@/lib/supabase/admin"
 
 export interface Announcement {
   id: string
+  slug?: string
   title: string
   content: string
   date: string
@@ -10,6 +11,18 @@ export interface Announcement {
   image_url?: string | null
   created_at: string
   updated_at: string
+}
+
+function generateSlug(title: string): string {
+  const base = title
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .slice(0, 50)
+    .replace(/-$/, "")
+  const suffix = Math.random().toString(36).slice(2, 6)
+  return `${base}-${suffix}`
 }
 
 export class AnnouncementsService {
@@ -56,6 +69,7 @@ export class AnnouncementsService {
         date: input.date,
         author: input.author,
         status: input.status,
+        slug: generateSlug(input.title),
       }
       if (input.image_url !== undefined) {
         insertData.image_url = input.image_url || null
@@ -68,14 +82,31 @@ export class AnnouncementsService {
         .single()
 
       if (error) {
-        if (error.message.includes("image_url")) {
-          delete insertData.image_url
+        if (error.message.includes("slug") || error.message.includes("image_url")) {
+          if (error.message.includes("slug")) delete insertData.slug
+          if (error.message.includes("image_url")) delete insertData.image_url
           const retry = await supabase.from("announcements").insert(insertData).select("*").single()
           if (retry.error) return { success: false, error: retry.error.message }
           return { data: retry.data as Announcement, success: true }
         }
         return { success: false, error: error.message }
       }
+      return { data: data as Announcement, success: true }
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+    }
+  }
+
+  static async getBySlug(slug: string): Promise<{ data?: Announcement; success: boolean; error?: string }> {
+    try {
+      const supabase = getServiceSupabase()
+      const { data, error } = await supabase
+        .from("announcements")
+        .select("*")
+        .eq("slug", slug)
+        .single()
+
+      if (error) return { success: false, error: error.message }
       return { data: data as Announcement, success: true }
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : "Unknown error" }

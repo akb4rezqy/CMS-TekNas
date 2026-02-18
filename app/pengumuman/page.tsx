@@ -124,7 +124,7 @@ function PengumumanPage() {
                 </CardContent>
 
                 <div className="p-6 pt-0">
-                  <Link href={`/pengumuman/${announcement.id}`} passHref>
+                  <Link href={`/pengumuman/${announcement.slug || announcement.id}`} passHref>
                     <Button className="w-full group/button">
                       Baca Selengkapnya
                       <ArrowRight className="h-4 w-4 ml-2 group-hover/button:translate-x-1 transition-transform duration-200" />

@@ -38,7 +38,9 @@ function AnnouncementDetailPage() {
   const { announcements, loading, error } = useAnnouncements()
   const [latestAnnouncements, setLatestAnnouncements] = useState<LatestAnnouncement[]>([])
 
-  const announcement = announcements.find((a) => String(a.id) === String(id))
+  const announcement = announcements.find(
+    (a) => String(a.id) === String(id) || (a.slug && a.slug === String(id))
+  )
 
   useEffect(() => {
     fetch("/api/announcements/latest")
@@ -220,7 +222,7 @@ function AnnouncementDetailPage() {
             <h3 className="text-2xl font-bold mb-6">Pengumuman Lainnya</h3>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {latestAnnouncements.slice(0, 3).map((ann) => (
-                <Link key={ann.id} href={`/pengumuman/${ann.id}`}>
+                <Link key={ann.id} href={`/pengumuman/${ann.slug || ann.id}`}>
                   <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group cursor-pointer">
                     <CardContent className="p-4">
                       <CardTitle className="line-clamp-1 text-base leading-tight group-hover:text-primary transition-colors mb-2">

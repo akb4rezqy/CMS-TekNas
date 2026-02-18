@@ -4,6 +4,7 @@
 School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailwind CSS, and Supabase as the backend database.
 
 ## Recent Changes
+- 2026-02-18: Added slug system for announcements. New announcements get auto-generated slugs (e.g., `/pengumuman/pengumuman-uas-2026-abc1`). Public pages use slug in URLs when available, fall back to UUID for older announcements. Added `getBySlug` method to AnnouncementsService. Database migration: `ALTER TABLE announcements ADD COLUMN IF NOT EXISTS slug TEXT;`
 - 2026-02-16: Added multi-user admin account management system. Login now checks admin_users table first (falls back to env vars). Admin can create/delete accounts with role (admin/editor). Users can change own password and username. New pages: /dashboard/settings/accounts. New API routes: /api/users, /api/users/change-password, /api/users/change-username, /api/auth/me. Session token now includes userId and role. Sidebar updated with Pengaturan > Manajemen Akun.
 - 2026-02-16: Added custom web analytics system using Supabase page_views table. PageTracker component tracks all public page visits (excludes /dashboard and /login). Dashboard redesigned with analytics: total views, unique visitors, today's views, device stats, daily traffic chart (recharts), popular pages, and recent activity. Added period filter (today/7d/30d). Added Cloudflare Turnstile CAPTCHA on login. Principal photo upload in page settings. Admin session reduced to 5 hours.
 - 2026-02-15: Added image support for announcements (upload in admin, display in public pages). 3 latest announcements shown on homepage and in announcement detail pages. Added profile photo & gender selection for staff/teachers with default male/female avatars. Added organizational structure management (admin CRUD + sidebar menu). Added delete confirmation dialog for messages. Database migration needed for new columns.
@@ -48,7 +49,7 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 - `styles/` - Global styles
 
 ### Supabase Tables
-- `announcements` - School announcements (title, content, date, author, status, image_url)
+- `announcements` - School announcements (title, content, date, author, status, image_url, slug)
 - `gallery` - Photo gallery (title, description, images[])
 - `extracurriculars` - Extracurricular activities (title, description, images[])
 - `staff_teachers` - Staff & teacher data (name, position, description, gender, photo_url)
@@ -62,6 +63,7 @@ School website for SMK Teknologi Nasional built with Next.js 16, React 18, Tailw
 ### Database Migration (run in Supabase SQL Editor)
 ```sql
 ALTER TABLE announcements ADD COLUMN IF NOT EXISTS image_url TEXT;
+ALTER TABLE announcements ADD COLUMN IF NOT EXISTS slug TEXT;
 ALTER TABLE staff_teachers ADD COLUMN IF NOT EXISTS gender VARCHAR(10) DEFAULT 'male';
 ALTER TABLE staff_teachers ADD COLUMN IF NOT EXISTS photo_url TEXT;
 CREATE TABLE IF NOT EXISTS org_structure (
