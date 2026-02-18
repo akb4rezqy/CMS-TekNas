@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { BarChart3, Users, Eye, Monitor, Smartphone, Plus, Loader2, TrendingUp, Globe } from "lucide-react"
+import { BarChart3, Users, Eye, Monitor, Smartphone, Plus, Loader2, TrendingUp, Globe, Trash2 } from "lucide-react"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
 interface AnalyticsData {
@@ -61,6 +61,24 @@ export default function DashboardPage() {
     fetchAnalytics()
     fetchRecent()
   }, [period])
+
+  const deletePageViews = async (page: string) => {
+    try {
+      const res = await fetch("/api/analytics", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page }),
+      })
+      const result = await res.json()
+      if (result.success && analytics) {
+        setAnalytics({
+          ...analytics,
+          topPages: analytics.topPages.filter((p) => p.page !== page),
+          totalViews: analytics.totalViews - (analytics.topPages.find((p) => p.page === page)?.count || 0),
+        })
+      }
+    } catch {}
+  }
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr + "T00:00:00")
@@ -254,7 +272,7 @@ export default function DashboardPage() {
                   <div key={item.page} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-xs font-medium text-muted-foreground w-5">{i + 1}.</span>
-                      <span className="text-sm font-medium">{PAGE_LABELS[item.page] || item.page}</span>
+                      <span className="text-sm font-medium truncate max-w-[180px]">{PAGE_LABELS[item.page] || item.page}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="h-2 rounded-full bg-[rgba(10,46,125,0.15)]" style={{ width: `${Math.max(40, (item.count / (analytics.topPages[0]?.count || 1)) * 100)}px` }}>
@@ -264,6 +282,17 @@ export default function DashboardPage() {
                         />
                       </div>
                       <span className="text-sm text-muted-foreground w-10 text-right">{item.count}</span>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Hapus data kunjungan untuk halaman "${PAGE_LABELS[item.page] || item.page}"?`)) {
+                            deletePageViews(item.page)
+                          }
+                        }}
+                        className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+                        title="Hapus data kunjungan"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}

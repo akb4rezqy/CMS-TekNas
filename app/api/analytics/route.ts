@@ -40,6 +40,26 @@ export async function POST(req: NextRequest) {
   }
 }
 
+export async function DELETE(req: NextRequest) {
+  try {
+    const { page } = await req.json()
+    if (!page) {
+      return NextResponse.json({ success: false, error: "Page required" }, { status: 400 })
+    }
+    const supabase = getServiceSupabase()
+    const { error } = await supabase
+      .from("page_views")
+      .delete()
+      .eq("page", page)
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+    }
+    return NextResponse.json({ success: true })
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 })
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const supabase = getServiceSupabase()
@@ -98,7 +118,7 @@ export async function GET(req: NextRequest) {
     })
     const topPages = Object.entries(pageCounts)
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+      .slice(0, 10)
       .map(([page, count]) => ({ page, count }))
 
     const dailyCounts: Record<string, number> = {}
